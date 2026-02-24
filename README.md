@@ -6,17 +6,7 @@ Fine-tune open-source language models on my essays to generate drafts in my writ
 
 Can fine-tuning capture something prompt engineering can't — the voice beneath the words? Not vocabulary or sentence length, but the editing instinct: what gets cut, what gets kept, how a paragraph earns its ending.
 
-After a year of prompt engineering approaches (custom GPTs, persona blends, statistical fingerprinting), the answer was no. So this project moves to the fine-tuning layer.
-
-## Architecture
-
-Three layers, each handled differently:
-
-1. **Voice (fine-tuning)** — LoRA adapter trained on essay pairs. Teaches *how* I write: rhythm, structure, word choice, omission.
-2. **Personhood (system prompt)** — Personal context loaded at inference time. Teaches *why* I write. Not fine-tuned — lives in the context window so it can be updated without retraining.
-3. **Runtime input** — Notes, thesis, voice memos for a specific essay. What the piece is *about*.
-
-Voice without personhood = cover band. Personhood without voice = AI that knows you but writes like AI.
+After a year of prompt engineering approaches, the answer was no. So this project moves to the fine-tuning layer.
 
 ## Approach
 
@@ -31,7 +21,7 @@ Same training pairs, two models, base vs. fine-tuned = four outputs per prompt. 
 
 ## Training Data
 
-~60-70 pairs across four tiers, curated from ~20 Substack essays and ~20 Substack Notes:
+~60-70 pairs across four tiers, curated from ~20 Substack posts and ~20 Substack Notes:
 
 - **Tier 1:** Rough draft → finished essay (editing instinct)
 - **Tier 2:** Thesis/topic → finished essay (generation from prompt)
@@ -61,4 +51,4 @@ Training data is not included in this repo.
 
 ## Context
 
-Week 4 project at [Fractal Tech](https://fractalbootcamp.com) (NYC). Built by [Lily](https://lowyelling.substack.com).
+Week 4 project at [Fractal Tech](https://github.com/fractal-nyc/bootcamp-monorepo/blob/main/curriculum/weeks/04-ambition/week-4-raise-your-ambitions-challenge.md) (NYC). Built by [Lily](https://lowyelling.com).
