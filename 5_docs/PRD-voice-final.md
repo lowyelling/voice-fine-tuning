@@ -129,4 +129,16 @@ Plug in Michael Dean's Essay Architecture as the objective evaluation layer. Ess
 
 ### Tier 5: Taste Inverse Reinforcement Learning and Diffusion Language Models — *Research horizon*
 
-Text diffusion models generate by refining the entire output at once — starting from noise, progressively denoising, the way a painter works a canvas. This matches the nonlinear creation process of writing (where the ending informs the beginning) better than autoregressive left-to-right generation. CMU research shows diffusion models outperform autoregressive models in data-constrained settings (~500 epoch tolerance vs ~15 before overfitting) — directly relevant to a ~40-essay corpus. Current bottlenecks: 16x compute cost, weaker reasoning, must define output length in advance. Unsure if anyone is benchmarking diffusion models on *voice fidelity*  
+Text diffusion models generate by refining the entire output at once — starting from noise, progressively denoising, the way a painter works a canvas. This matches the nonlinear creation process of writing (where the ending informs the beginning) better than autoregressive left-to-right generation. CMU research shows diffusion models outperform autoregressive models in data-constrained settings (~500 epoch tolerance vs ~15 before overfitting) — directly relevant to a ~40-essay corpus. Current bottlenecks: 16x compute cost, weaker reasoning, must define output length in advance. Unsure if anyone is benchmarking diffusion models on *voice fidelity*.
+
+**Open-weight text diffusion models (as of Feb 2025):**
+
+The field moved fast. Three open models exist that could extend the four-way comparison into a six-way comparison (adding base vs fine-tuned diffusion):
+
+- **[LLaDA 8B](https://github.com/ML-GSAI/LLaDA)** — Most relevant. 8B parameter text diffusion model, open weights on Hugging Face (LLaDA-8B-Base and LLaDA-8B-Instruct). Released Feb 2025, competitive with LLaMA 3 8B on benchmarks. Key claim: solves the "reversal curse" that autoregressive models can't reason backward. Same size as our Llama — direct comparison possible.
+- **[DiffuLLaMA](https://github.com/HKUNLP/DiffuLLaMA)** (ICLR 2025) — Converts existing autoregressive models *into* diffusion models. Could theoretically take our fine-tuned Llama and make it generate holistically instead of left-to-right.
+- **[Open-dCoder 0.5B](https://github.com/pengzhangzhi/Open-dLLM)** — Smaller, fully open stack (training → evaluation → inference). More manageable on a T4 but focused on code generation.
+
+**Practical feasibility on Colab T4:** LLaDA 8B would need the same 4-bit quantization + LoRA treatment as Llama — tight but possible. Fine-tuning support is less mature than HuggingFace's Trainer (research-grade, fewer tutorials, rougher edges). This is a separate project, not a week 4 addition.
+
+**The question nobody has answered:** Can a text diffusion model fine-tuned on essays capture essay-level *architecture* better than an autoregressive model, precisely because it sees the whole canvas at once? The autoregressive model commits to word 1 before word 200 exists — it's improvising jazz. A diffusion model refines the whole sequence simultaneously — closer to how a writer actually works, holding the thesis and the ending in mind while shaping the opening. Canary C (essay-level structure) is where this difference would show up most.
