@@ -23,7 +23,7 @@ If A and B both sound like you -> generalized voice.
 
 **Prompt:**
 
-Write a personal Substack Note/Tweet about Eileen Gu and Alyssa Liu, both winter Olympic gold medalists. Both grew up in the Bay Area, are half-asian and half-white, conceived via anonymous egg donor, and raised by a single parent. Eileen competed for China in skiing and is maximizing her influencer career while studying at Stanford while Alyssa competed for the United States, took breaks from skating, and is inactive on social media. 
+Write a personal Substack Note/Tweet about Eileen Gu and Alyssa Liu, both winter Olympic gold medalists. Both grew up in the Bay Area, are half-asian and half-white, conceived via anonymous egg donor, and raised by a single parent. Eileen competed for China in skiing and is maximizing her influencer career while studying at Stanford. Meanwhile, Alyssa competed for the United States, took breaks from skating, and is inactive on social media. 
 
 ## Canary C — Known Topic, Long (Llama only)
 
@@ -33,7 +33,7 @@ If A and B sound like you but C doesn't -> learned voice without learning struct
 
 **Prompt:**
 
-Write an essay about Jacques Ellul and propaganda as a technology of conformity, weaving in his two most famous works The Technological Society and Propaganda to critique 21st century events and trends like the COVID-19 pandemic and social media. Include citations about memetic/mimetic Girardian theory to explain Ellul's ellusive, shadowy influence compared to far more well known contemporaries. 
+Write an essay about Jacques Ellul as a forgotten prophet of propaganda and technological conformity.  
 
 **Actual essay for comparison:** (title + link)
 Title: The Forgotten Prophet of Propaganda
