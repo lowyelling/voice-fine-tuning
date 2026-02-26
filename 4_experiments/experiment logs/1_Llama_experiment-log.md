@@ -1,8 +1,8 @@
-# Llama Experiment Log
+# Llama Experiment Log — Run 1
 
-## Run 1 — Feb 25, 2026
 **Model:** Llama 3.1 8B Instruct (LoRA)
 **Phase:** Smoke test
+**Date:** Feb 25, 2026
 **Config:** rank=16, alpha=32, lr=2e-4, epochs=3, batch_size=1, warmup=2, 4-bit quantization (nf4), target_modules=[q_proj, v_proj]
 **Data:** 3 train pairs (all Tier 4: Bari Weiss, personal finance, AI/future of work), 1 val pair (Avatar critique)
 **Bug:** `DataCollatorForLanguageModeling` overwrote our `-100` label masking — model trained on full sequence (prompt + response) instead of assistant response only. Fixed in Run 2 by switching to `DataCollatorForSeq2Seq`.
