@@ -32,7 +32,7 @@ PAIRS_DIR = REPO_ROOT / "1_data" / "pairs"
 OUTPUT_DIR = REPO_ROOT / "1_data" / "jsonl"
 
 GPT2_MAX_TOKENS = 1024
-LLAMA_MAX_TOKENS = 2048
+LLAMA_MAX_TOKENS = 8192
 
 # Input files: (model, split) → path
 INPUT_FILES = {
