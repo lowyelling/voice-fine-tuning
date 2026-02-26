@@ -5,7 +5,7 @@ Show where GPT-2's 1,024 token limit falls in an essay.
 Three modes:
     1. Analyze    — paragraph-by-paragraph token counts, show where cutoff lands
     2. Cut        — output truncated essay (response budget only, no prompt file)
-    3. Cut+prompt — read prompt from gpt2_prompts.md, subtract from budget, output truncated essay
+    3. Cut+prompt — read prompt from prompts.md, subtract from budget, output truncated essay
 
 Usage:
     # Mode 1: analyze
@@ -40,7 +40,7 @@ except ImportError:
     sys.exit(1)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PROMPTS_FILE = REPO_ROOT / "1_data" / "pairs" / "gpt2_prompts.md"
+PROMPTS_FILE = REPO_ROOT / "1_data" / "pairs" / "prompts.md"
 
 GPT2_MAX = 1024
 SEPARATOR = "\n\n---\n\n"
@@ -48,7 +48,7 @@ SEPARATOR_TOKENS = len(enc.encode(SEPARATOR))
 
 
 def parse_prompts_file(path: Path) -> dict[str, dict]:
-    """Parse gpt2_prompts.md into {slug: {tier, prompt}} dict.
+    """Parse prompts.md into {slug: {tier, prompt}} dict.
 
     Expected format:
         ## essay-slug
@@ -158,7 +158,16 @@ def cut_essay(essay_text: str, prompt_tokens: int) -> str:
     paragraphs = essay_text.split("\n\n")
     if cut_idx is None:
         return essay_text
-    return "\n\n".join(paragraphs[:cut_idx])
+
+    # BPE boundary effects can make joined text slightly longer than the
+    # sum-of-parts estimate.  Verify and trim until it actually fits.
+    budget = GPT2_MAX - prompt_tokens - SEPARATOR_TOKENS
+    while cut_idx > 0:
+        result = "\n\n".join(paragraphs[:cut_idx])
+        if len(enc.encode(result)) <= budget:
+            return result
+        cut_idx -= 1
+    return ""
 
 
 
@@ -250,7 +259,7 @@ def main():
     parser.add_argument("--cut", action="store_true",
                         help="Output the truncated essay text")
     parser.add_argument("--prompts", action="store_true",
-                        help="Mode 3: read prompts from gpt2_prompts.md, match by slug")
+                        help="Mode 3: read prompts from prompts.md, match by slug")
     args = parser.parse_args()
 
     # Collect files
