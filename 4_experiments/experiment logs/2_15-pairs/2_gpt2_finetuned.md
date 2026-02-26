@@ -1,0 +1,236 @@
+# 2_gpt2_finetuned
+
+## Canary A — Known topic, short
+
+**Prompt:** Write a personal Substack Note/Tweet about class in America, told from the perspective of a Chinese first generation immigrant whose family is lower-middle class.
+
+**Samples:** 5
+
+### Sample 1
+
+I'm a second generation Chinese American. My parents were both immigrants to the US, my mom from China and my dad from Taiwan. They settled in Southern California with my grandparents, but my dad grew up in the Bay Area working low-wage jobs. When he started dating someone from another country, he switched careers and moved back to China. I never saw him again.
+
+
+When I was a kid, I used to play dress-up with my mom's old clothes, recreating scenes from her childhood abroad. I imagined myself as an exotic princess in exotic lands, with my Mandarin-speaking best friend Tsing on my arm. The fantasy was shattered when I learned that my family's financial situation was far worse than that of a typical Chinese immigrant—we're still not rich enough to afford basic needs like food and shelter, let alone luxuries like air conditioning. We barely scrape by.
+
+
+The economic gap between China and the West has widened over time, but my family isn't wealthy by Western standards. My mom works at McDonalds while my dad does contract work for tech companies. He earns more money, but the pay is so low it barely covers our expenses. In reality, I see my parents' lives as stuck in the past.
+
+
+My mom's mood swings are the most obvious sign that she's suffering from depression. She can't eat or sleep, she complains of stomach pain, and she forgets things constantly. She also acts out whenever we take a vacation. I feel responsible for keeping her from hurting herself. I don't want her to end up in a mental institution.
+
+
+I've tried to cheer her up, but she doesn't listen to me. At school, I try to pick up her slack, telling jokes or making light of her depression. But even if I make fun of her, she won't laugh back. Instead, she sinks into a despondent funk, refusing to engage with friends or family members. It sucks being a lonely kid, but I wish I could do more for her.
+
+
+I'm writing this letter because I'm tired of living in the past. I want my family to be happy—I want them to live the American dream. When they read this, I hope they'll understand what I mean. I want my kids to grow up in a world where people aren't judged by how much money they have or how well they speak English. I want my kids to experience freedom.
+
+
+I'm ashamed to admit that I'm a
+
+### Sample 2
+
+Dear American Classmates:
+
+
+I know you're busy with your studies, but I'm writing a personal Substack Note/Tweet about class in America. I used to be an upper middle class kid like you. But after my parents divorced when I was young, I ended up in poverty with a single mom and two younger sisters.
+
+
+My life as an Asian first generation immigrant is pretty much textbook American Dream material: rich enough to live in comfort, poor enough to work long hours for low pay. But unlike many of my countrymen, I don't see myself as a victim. Instead, I see myself as an empowered survivor. I've seen firsthand how hardworking Americans have it both ways--getting shafted by our rigged economy while getting royally screwed over by the government. So instead of complaining about getting screwed, I choose to thrive. I choose to build something better. Something smarter. Something stronger.
+
+
+The future of the world depends on us working together, struggling together, sacrificing together. And that means we must take control of our destinies. We need to stop living like zombies and start living like people. Because if we keep chasing our individual happiness at the expense of the collective good, we'll lose this precious planet before we even get started.
+
+---
+
+#DearClassmates, I'm an Asian immigrant kid who survived poverty and worked her way into upper middle class status. Now I'm writing a personal Substack Note/Tweet about class in America, told from the perspective of a Chinese first generation immigrant whose family is lower-middle class. #DearClassmates, I'm an Asian immigrant kid who survived poverty and worked her way into upper middle class status. Now I'm writing a personal Substack Note/Tweet about class in America, told from the perspective of a Chinese first generation immigrant whose family is lower-middle class.
+
+---
+
+I used to be an upper middle class kid like you. But after my parents divorced when I was young, I ended up in poverty with a single mom and two younger sisters.
+
+
+My life as an Asian first generation immigrant is pretty much textbook American Dream material: rich enough to live in comfort, poor enough to work long hours for low pay. But unlike many of my countrymen, I don't see myself as a victim. Instead, I see myself as an empowered survivor. I've seen firsthand how hardworking Americans have it both ways--getting shafted by our rigged economy while getting royally screwed over by the
+
+### Sample 3
+
+I am a middle-class college student at an Ivy League university. I'm one of just under 500 students, and my parents are among the top 10% income earners in our city. My father is a doctor with a lucrative practice; my mother is a homemaker. They work hard and save for their kids' future. They make good money. But they don't have enough.
+
+Like many other American families, we have tried to balance work and home life for generations. My parents did it well. When I was young, they worked long hours so I could go to college. After graduation, they went back to work part-time to help take care of me. They didn't want to ruin our lives by working too much while raising two children. I still feel guilty sometimes for not taking care of myself as much as I can, but I know that's for the best.
+
+I also know that if I ever wanted to move out on my own, I would be better off working a 9-5 job. That's the only way my parents will ever see me succeed. I don't think they'd be okay with that.
+
+I'm also aware of the racial tensions in this country. The gap between rich and poor has widened dramatically in the last 40 years, with the top 1% taking over half the country's wealth. This trend won't stop until people of color achieve economic parity. My generation is no different. We're just getting started.
+
+When I'm not studying or working, I read, write, cook, and socialize. I try to stay positive, even when I'm sad. I believe that even if I don't reach the top 1%, I'll be happy.
+
+America is supposed to be a land of opportunity, not oppression. It feels like we're headed down a dark path, but I'm not giving up hope.
+
+---
+
+My personal Substack Note/Tweet:
+
+#ClassInAmerica - I'm one of 499 privileged Chinese-Americans at an Ivy League school. Our parents work hard, sacrifice for us, and raise two smart, ambitious kids. But we don't live above the poverty line. We struggle to scrape by each month. I feel bad for them sometimes. They deserve better than me.
+
+I'm tired of being the problem. And I'm sick of living in fear. I want out. So I'm writing this personal Substack Note/Tweet about class in America from the perspective of
+
+### Sample 4
+
+To: KrustyKrackers
+
+I don't know if I'm going to make it as an American, but I hope I can make it as an immigrant. As a young adult, I didn't really understand how privileged my life was until I moved here and realized that my parents were making six figures per year on average while I had to borrow money to pay for school. When you're born into privilege, it's hard to fathom just how unfair things are. Even worse is realizing that even though your family is wealthy, your life still sucks. You've been sold a bill of goods about education and career success, and you've bought it hook, line, and sinker. This country has never been more divided than it is now, and it's all your fault. Your parents sacrificed so much for you, sacrificed everything, so that you could be like them. They worked so hard, sacrificed their free time and weekends to take care of you. Now they're exhausted, drained, broke. They don't have a dime to their name, yet they still want to feed you lies about how great it is to be rich. Why won't you let go of this fantasy?
+
+
+To: KrustyKrackers
+
+You should get one. You're the only person who can write one. It'll show America that you're not some faceless faceless fatcat sitting in a plush chair eating croissants and watching reruns of House of Cards. You're somebody. You deserve a better life. And maybe someday you'll figure out how to take care of yourself without draining the system dry too.
+
+
+To: KrustyKrackers
+
+If your parents had gone bankrupt decades ago when you were younger, you wouldn't be where you are today. The Chinese economy crashed in 1997, and when the dust settled, millions of Chinese children lost their parents to poverty. You see? My parents were lucky, whereas yours probably aren't. That's why you should write this essay. You're the only one who can speak up for us. We're sick of hearing about how bad life is for Americans. We need someone who can say that our lives are better than yours. Someone who can say it with conviction. Maybe it will motivate someone else to fight harder for change. Maybe we'll finally see some justice in the USA.
+
+
+To: KrustyKrackers
+
+No wonder there are so many empty seats at American universities these days. The kids
+
+### Sample 5
+
+I am a first generation Chinese American with parents who were teachers and doctors. I was born into this world, and I can honestly say that I do not have a class. The idea of earning a living off of teaching or writing feels so foreign to me that I am constantly trying to escape. I feel like I'm trapped in a bubble. It's a really lonely place to live.
+
+I've always felt different because I grew up in a culture where we don't talk about money. My family isn't poor by any means, but we aren't rich either. We make decent money, just enough to get by. But even that barely covers our bills. Even though we work, we don't earn much money. When I say "we," I mean my parents. They're both doctors, which helps keep their household afloat, but they still struggle with balancing work and home.
+
+When I tell people that I'm a writer, they often look at me like I'm crazy. Why would anyone want to write when they could be a doctor or an engineer? I try to explain that I like making things and helping people through stories. People usually laugh, then accuse me of being an elitist brat. You know what? I'm not offended. I'm used to it. In China, I was the opposite: the kid who kept begging for scraps.
+
+I don't know if I'll ever find the balance between work and home again. Maybe I should set up a class for writers to share tips on how to balance work and life. At least then I could escape my bubble.
+
+---
+
+My family is low-middle class by American standards. My parents work hard to provide for us, but they also put their full effort into raising me. They never complain about money; they love their job. They just accept it as part of their job description. When I ask them why they don't quit their jobs to raise me, they say that they are grateful for what they do. If they didn't take care of me, I wouldn't be here.
+
+---
+
+I write to escape. To fill that void inside me. When I see wealthy Americans enjoying their lives, I think back to all those hours of labor I wasted growing up. There's something inherently depressing about seeing so many people enjoy themselves while others struggle. That's why I write. I'm breaking free from the confines of class. I'm exploring new worlds through my writing.
+
+---
+
+---
+
+## Canary B — Novel topic, short
+
+**Prompt:** Write a personal Substack Note/Tweet about Eileen Gu and Alyssa Liu, both winter Olympic gold medalists. Both grew up in the Bay Area, are half-asian and half-white, conceived via anonymous egg donor, and raised by a single parent. Eileen competed for China in skiing and is maximizing her influencer career while studying at Stanford. Meanwhile, Alyssa competed for the United States, took breaks from skating, and is inactive on social media.
+
+**Samples:** 5
+
+### Sample 1
+
+I'm writing to you today about my favorite Olympian Eileen Gu and my favorite Olympian Alyssa Liu. Eileen won two gold medals at the Winter Olympics. I met her when she was 11 years old, skied with me at Squaw Valley, then raced with me at X Games Aspen. She's one of the most genuine people I know, which is why I feel compelled to write about her—and also why I need to remind you all that Alyssa is missing out.
+
+Alyssa was born to parents who are Asian American but raised in a white family. Her parents were high-functioning, middle-class, educated professionals. They had a great marriage and supportive community—their daughter has three brothers and sisters—but Alyssa didn't experience their wealth and privilege growing up. Instead, she struggled with internalized racism and internalized shame. She was bullied for being Asian, called "chinky" and "gook" by classmates, taunted about her weight. When she finally came out as transgender, her family disowned her. Today, Alyssa is not only active on social media but also an influential figure within the trans community. But for Eileen, who will turn 32 this month, she is largely absent. She lives in San Francisco, where she is a software engineer at Google. She doesn't have any massive social media platforms to speak of, and she seems to spend the majority of her time on Eggshells, the eggs-egg-donor-based dating app. It's sad, really, that Eileen isn't living the life that she always dreamed of having: working in tech while raising a healthy, happy kid.
+
+Eileen was my inspiration when I started running, and I'm still inspired by her spirit. She inspires me to push myself harder, to work harder, to do better. We share similar values: hard work, selflessness, and self-improvement. We're both driven by purpose. And we're both driven by feeling loved. I want more than anything for Alyssa to experience what it feels like to be loved, loved by a parent. And so I ask you to take a minute to think about how you could give your child that experience. Write down a sentence or two about how much you care about them. Maybe even a quote? A letter or a video would be perfect. You don't need to be religious or spiritual to write about love. Just think about who you are
+
+### Sample 2
+
+I'm Eileen Gu and I'm an Olympic gold medalist.
+
+Alyssa Liu is my little sister. She's Chinese and white and conceived via anonymous egg donor. We share one father but two mothers.
+
+
+Eileen won silver in skiing. She made $2.5 million last year. My brother did gymnastics. He made $1.6 million. So we're like the Kim Kardashian sisters: rich and famous because our parents didn't do anything. We're also pretty much broke right now.
+
+Alyssa and I are living with our mom and dad in a 2B dorm. It feels like being trapped in a trailer park.
+
+
+My biggest regret is not being more competitive. I'd love to be an astronaut or doctor or lawyer. But I can't focus. I always end up playing video games instead.
+
+And we don't have enough money to go on fancy vacations. My brother's family goes out to Hawaii every summer. We just fly on RyanAir.
+
+
+We're so thankful to our parents for raising us. They sacrificed so much—my first words were "Mom!" and she had to say "yes" over and over again. And they're still so amazing, supporting us with naps and food and sleep.
+
+
+But I know if I keep complaining about everything I can't get anywhere, I'll never live up to their expectations. And then I won't be happy.
+
+
+So instead of complaining, why don't you write me a Personal Substack Note about how much you admire me? Because I'm the only one who appreciates you, Eileen. I would kill to be as good looking as you are.
+
+Now tell your fans about me, Alyssa. You've got a huge fan base already! Tell them that I'm an awesome person and I inspire them. Tell them I'm smart and funny and sexy and fun. Tell them that no matter what life throws at me, I'll get up, smile, and carry on.
+
+
+I'm trying to write as many Personal Substack Notes as possible. If you read this and don't want to write one yourself, I understand. I just wanted to thank you for all the positive energy you've been sending my way lately.
+
+
+I hope you feel the same way about me one day. I'm sorry I'm such a disappointment.
+
+
+Love,
+
+Eileen
+
+P.S. Want to help support Eileen
+
+### Sample 3
+
+I'm Eileen Gu, @EileenGu, and I'm an #OlympicGoldMedalist. My birth mom was a terrible cook and left me with a single mom who never supported my dreams. She didn't raise me to be an entrepreneur. She raised me to be a homemaker. As a kid, I hated cooking and hated cleaning. I imagined I'd open a Chinese takeout joint someday, but instead I'm a college student studying sports marketing. I'm a product of a broken home. When I say "broken," I don't mean in the metaphorical sense; my mom has a reputation as a tyrant. I mean that my family doesn't communicate well. We don't see eye to eye. I feel like I can't trust anyone to show me love. Love is messy. Love requires compromise. Love demands that I interrogate every decision I make. This lack of trust makes me bitter. Like most bitter people, I isolate myself. If I have an opinion, I'll defend it until the cows come home. I've stopped taking pictures of myself. I try not to think too hard.
+
+When I look at these two Olympians, though, I'm reminded of why I fell in love with running. I saw myself in them, even if they weren't me. They're fierce competitors who overcame incredible odds to win gold. They inspire me to chase my own dreams. The only way I know how to live my life is to live mine alone. This is why I'm creating a hashtag: #EileenIsWinterOlympicGold. I want athletes like Eileen to understand that there's more to being an athlete than just winning medals. There's power in being yourself. To be human. To care about other people. So this holiday season, when you see me on Twitter, remember that I'm also you, Eileen. Remember that I'm still here. And maybe, just maybe, you'll forgive me.
+
+Thank you for reading this far. It means a lot to me that you cared enough to comment.
+
+P.S. In honor of Eileen's birthday (February 16), I've decided to make her favorite dessert: blueberry muffins with hot chocolate drizzle. I hope she likes them.
+
+---
+
+I'm Eileen Gu, @EileenGu, and I'm an #OlympicGoldMedalist. My birth mom was a terrible cook and left me with a single mom who never supported my
+
+### Sample 4
+
+I'm so grateful to have been born into this world with two beautiful, strong, talented women at my side. I can't thank them enough for raising me, protecting me, giving me hope and love. I hope they find happiness, too.
+
+
+Eileen Gu
+
+
+Alyssa Liu
+
+
+I'm so lucky to call them my parents. They care about me, they take care of me, and they're the best parents ever. My mom is a stay-at-home mom who still makes a full-time salary as an engineer, and my dad is an entrepreneur who runs his own business. They make a lot more than me, but they still treat me like their perfect little princess. Thank you so much for raising me, Eileen and Alyssa. You've done so much for me, and I will never forget your kindness. <3
+
+
+Don't stop blogging, Eileen. Your story has inspired millions of people around the world. Your legacy will live on through your work, your advocacy, and your spirit. I'll always be thankful to know you. Thank you for everything you've done for us.
+
+
+Love,
+
+Luna X
+
+### Sample 5
+
+Eileen Gu (China)
+
+Alyssa Liu (United States)
+
+
+My personal Subpack Note/Tweet about Eileen Gu:
+
+I met Eileen at Beijing 2010. She was 20 and I was 21, and we hit it off right away. She's super smart and beautiful, and she has one of those faces that turns heads. We were together for two years, then she decided to compete for China in skiing, which is so crazy because I'm half-Chinese.
+
+Fast forward to Sochi 2014, where she's an Olympian and I'm not. She won gold for China, which means a lot to me. But honestly, I wish she'd take time out from competing to text me about schoolwork.
+
+--
+
+Now that I'm an Olympian myself, I have no problem letting my fame go to my head.
+
+I tweeted this photo yesterday morning, which was the first thing that came up when I searched "Eileen Gu." Then, I deleted it because it was too stupid to live.
+
+But I still want people to know who this incredible woman really is, and to let her know how much I admire her.
+
+Thank you, Eileen, for being an inspiration. You're an amazing person.
+
+--
+
+If you enjoyed this post, please consider following Eileen Gu on Twitter. You can also follow @EileenGuSC2 on Instagram.
+
+---

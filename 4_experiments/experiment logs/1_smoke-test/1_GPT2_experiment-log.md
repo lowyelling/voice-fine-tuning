@@ -133,3 +133,4 @@ GPT-2 baseline was nearly non-functional on this task (pre-RLHF = no instruction
 - Run Llama smoke test with same 3 train + 1 val pairs for the baseline comparison
 - Scale to ~13 pairs across tiers
 - Run overfitting diagnostic (crank epochs on same 3 pairs)
+

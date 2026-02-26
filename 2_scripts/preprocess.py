@@ -19,6 +19,33 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = REPO_ROOT / "1_data" / "raw"
 CLEANED_DIR = REPO_ROOT / "1_data" / "cleaned"
 
+# --- Substack-specific patterns (must be processed BEFORE generic markdown) ---
+
+# YAML/Hugo frontmatter: ---\nkey: value\n---
+FRONTMATTER_RE = re.compile(r"\A---\n.*?\n---\n?", re.DOTALL)
+
+# Linked images with optional caption: [![alt](inner)](outer)Caption text
+# Must be removed before regular image stripping to avoid orphaned [](url)Caption
+LINKED_IMAGE_RE = re.compile(
+    r"^\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\).*$", re.MULTILINE
+)
+
+# Substack footnote reference links inline: word.[1](url#footnote-1-...)
+# Must be removed BEFORE generic markdown link stripping, which would convert
+# [1](url) -> bare "1" that the old footnote regex can't catch
+SUBSTACK_FOOTNOTE_REF_RE = re.compile(r"\[\d+\]\([^)]*#footnote-\d+-[^)]*\)")
+
+# Substack footnote definition anchors at bottom: [1](url#footnote-anchor-1-...)
+# Used to detect where the footnote section starts so we can strip it entirely
+SUBSTACK_FOOTNOTE_DEF_RE = re.compile(
+    r"^\[\d+\]\([^)]*#footnote-anchor-\d+-[^)]*\)", re.MULTILINE
+)
+
+# Acknowledgments section: "_Thanks to ..." near the end of an essay
+ACKNOWLEDGMENTS_RE = re.compile(r"^\s*_\s*Thanks to ", re.MULTILINE)
+
+# --- Generic patterns ---
+
 # Substack boilerplate patterns (matched per-line, case-insensitive)
 BOILERPLATE_PATTERNS = [
     # Subscribe / share CTAs
@@ -38,10 +65,10 @@ BOILERPLATE_RE = re.compile(
     re.MULTILINE | re.IGNORECASE,
 )
 
-# Footnote references like [1], [2] inline (with optional preceding space)
+# Footnote references like [1], [2] inline (fallback for non-Substack footnotes)
 FOOTNOTE_REF_RE = re.compile(r" ?\[\d+\]")
 
-# Footnote definition lines at bottom: "[1] Some text here"
+# Footnote definition lines at bottom: "[1] Some text here" (fallback)
 FOOTNOTE_DEF_RE = re.compile(r"^\[\d+\].*$", re.MULTILINE)
 
 # Image markdown: ![alt](url) -> remove entirely (images aren't text for fine-tuning)
@@ -49,6 +76,9 @@ IMAGE_MD_RE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
 
 # Markdown links: [text](url) -> text
 MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]+\)")
+
+# Empty markdown links: [](url) -> remove entirely (orphaned linked-image shells)
+EMPTY_LINK_RE = re.compile(r"\[\]\([^)]+\)")
 
 # Bare URLs on their own line
 BARE_URL_LINE_RE = re.compile(r"^https?://\S+\s*$", re.MULTILINE)
@@ -83,17 +113,70 @@ def strip_header_dates(text: str) -> str:
     return "\n".join(lines)
 
 
+def strip_endmatter(text: str) -> str:
+    """Remove footnote definitions and acknowledgments from the end of the essay.
+
+    Substack essays often end with an acknowledgments section ("Thanks to...")
+    followed by numbered footnote definitions. Both should be stripped for
+    fine-tuning since they're not part of the essay voice.
+    """
+    cut_point = len(text)
+
+    # Find first footnote definition anchor: [N](url#footnote-anchor-N-...)
+    m = SUBSTACK_FOOTNOTE_DEF_RE.search(text)
+    if m:
+        cut_point = min(cut_point, m.start())
+
+    # Find acknowledgments section. If we already found footnotes, look anywhere
+    # before them for acknowledgments (footnote-heavy essays push acknowledgments
+    # to <50% of file by character count). Otherwise, only look in the back half.
+    m = ACKNOWLEDGMENTS_RE.search(text)
+    if m:
+        min_pos = len(text) * 0.3 if cut_point < len(text) else len(text) * 0.5
+        if m.start() > min_pos:
+            cut_point = min(cut_point, m.start())
+
+    if cut_point < len(text):
+        text = text[:cut_point]
+
+    return text
+
+
 def preprocess(text: str) -> str:
     """Clean a raw Substack essay. Keeps paragraph breaks, emphasis, headers, block quotes."""
+
+    # --- Phase 1: Substack-specific stripping (before any generic markdown processing) ---
+
+    # Strip YAML frontmatter (must be first, before --- gets normalized to ***)
+    text = FRONTMATTER_RE.sub("", text)
 
     # Strip metadata dates from the header area only
     text = strip_header_dates(text)
 
-    # Remove image markdown before link stripping (prevents ![alt](url) -> !alt)
+    # Strip endmatter: acknowledgments + footnote definitions at the bottom.
+    # Must happen before link processing, which would destroy the anchor patterns
+    # we use to detect where footnotes start.
+    text = strip_endmatter(text)
+
+    # Remove Substack footnote reference links: [N](url#footnote-N-...)
+    # Must happen before generic markdown link stripping, which would convert
+    # [1](url) -> bare "1" instead of removing it entirely.
+    text = SUBSTACK_FOOTNOTE_REF_RE.sub("", text)
+
+    # Remove linked images with captions: [![alt](inner)](outer)Caption
+    # Must happen before regular image stripping to avoid orphaned [](url)Caption
+    text = LINKED_IMAGE_RE.sub("", text)
+
+    # --- Phase 2: Generic markdown stripping ---
+
+    # Remove image markdown (prevents ![alt](url) -> !alt in link step)
     text = IMAGE_MD_RE.sub("", text)
 
-    # Strip markdown links, keep anchor text
+    # Strip markdown links, keep anchor text: [text](url) -> text
     text = MARKDOWN_LINK_RE.sub(r"\1", text)
+
+    # Remove empty markdown links: [](url) (orphaned shells from linked images)
+    text = EMPTY_LINK_RE.sub("", text)
 
     # Remove bare URL lines
     text = BARE_URL_LINE_RE.sub("", text)
@@ -101,10 +184,10 @@ def preprocess(text: str) -> str:
     # Remove remaining inline bare URLs
     text = INLINE_BARE_URL_RE.sub("", text)
 
-    # Remove footnote definition lines (must come before reference removal)
+    # Remove footnote definition lines (fallback for non-Substack footnotes)
     text = FOOTNOTE_DEF_RE.sub("", text)
 
-    # Remove footnote reference numbers
+    # Remove footnote reference numbers (fallback for non-Substack footnotes)
     text = FOOTNOTE_REF_RE.sub("", text)
 
     # Remove boilerplate lines
@@ -112,6 +195,14 @@ def preprocess(text: str) -> str:
 
     # Normalize horizontal rules to *** (avoid --- collision with pipeline delimiters)
     text = HORIZONTAL_RULE_RE.sub("***", text)
+
+    # Strip everything after the final *** (acknowledgments, cross-promos, embeds).
+    # Internal *** are section breaks within the essay; the last one marks where
+    # the essay ends and Substack endmatter begins.
+    last_rule = text.rfind("\n***\n")
+    if last_rule != -1:
+        # Keep the *** as the essay's closing mark
+        text = text[: last_rule + len("\n***")]
 
     # Collapse multiple blank lines to max two (one empty line between paragraphs)
     text = MULTI_BLANK_RE.sub("\n\n", text)
@@ -158,7 +249,7 @@ def main():
 
     print(f"Processing {len(paths)} file(s)...")
     for p in paths:
-        out = CLEANED_DIR / p.name
+        out = CLEANED_DIR / (p.stem + "_clean.md")
         process_file(p, out, dry_run=args.dry_run)
 
     if not args.dry_run:
