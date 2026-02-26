@@ -2,4 +2,6 @@
 /archive
 /.claude
 /1_data
+!/1_data/jsonl/
+!/1_data/jsonl/*.jsonl
 
