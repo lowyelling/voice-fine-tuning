@@ -92,9 +92,47 @@ The model didn't learn voice — it learned to repeat high-frequency tokens. Thi
 2. **No repetition penalty in inference.** The `generate_llada` function uses Gumbel noise for diversity but has no explicit repetition penalty. Autoregressive sampling typically includes `repetition_penalty=1.1` to suppress repeated tokens. LLaDA's confidence-based unmasking has no equivalent mechanism built in.
 3. **Small dataset + masked diffusion.** 158 pairs may be too few for LLaDA's training objective. Each training step randomly masks a different subset of tokens, so the model sees many noisy views of the same data. With only 158 examples, the signal-to-noise ratio may be too low to learn anything beyond surface-level token frequencies.
 
-### Possible next steps
-- **Reduce LR to 1e-4** (match Llama) — most likely fix
-- **Add repetition penalty to `generate_llada`** — suppress repeated token confidence during unmasking
-- **Use best checkpoint (epoch 2)** instead of final — less overfitting
-- **Fewer epochs** — degeneration may be a late-training artifact
-- This may also be a fundamental limitation of fine-tuning masked diffusion models with small datasets — the generation mechanism amplifies small distributional shifts into catastrophic repetition in a way that autoregressive models don't
+### Why this doesn't happen in autoregressive models
+
+The degeneration cascade is specific to how LLaDA's unmasking interacts with bidirectional attention:
+
+1. Fine-tuning shifted the logit distribution so common tokens ("class", commas, bullets) get slightly higher confidence
+2. In step 1 of unmasking, these high-confidence tokens get committed first (they win the confidence race)
+3. LLaDA's bidirectional attention means **every remaining MASK position sees the same repetitive context** — all at once, not one at a time
+4. This makes the model even more confident about the same repeated tokens for the next step
+5. Cascade → the whole sequence collapses
+
+Autoregressive models don't have this problem because each position sees *different* left context. Position 50 sees a different sequence than position 100. In LLaDA, all positions see the same thing simultaneously — so a small distributional shift gets amplified catastrophically across all positions at once.
+
+### Fixes, ranked by likelihood of working
+
+**1. Much lower LR (most likely fix).** LR was 2e-4. Llama used 1e-4. But LLaDA's loss already amplifies gradients via `1/p_mask` — when t is small (few tokens masked), the gradient signal is huge. The *effective* learning rate is already higher than the nominal rate. Try **5e-5 or even 2e-5**. Goal: nudge the distribution slightly, not shove it.
+
+**2. Reduce LoRA rank (r=4 instead of 16).** Less capacity = less room to learn degenerate patterns. Rank 16 across 160 layers is a lot of expressiveness for 158 examples. Rank 4 constrains the adapter to only learn the strongest signal (hopefully voice, not repetition).
+
+**3. Fewer epochs (2 instead of 3).** Val loss was best at epoch 2 (3.15) and ticked up at epoch 3 (3.19). The degeneration might be a late-training artifact.
+
+**4. Add repetition penalty to the unmasking loop.** During each unmasking step, before selecting the top-k most confident tokens, penalize any token that's already been committed elsewhere in the sequence:
+
+```python
+# After computing confidence, before selecting top-k:
+committed_tokens = x[0][x[0] != MASK_ID]
+for token_id in committed_tokens.unique():
+    penalty_mask = (x0[0] == token_id) & mask_index[0]
+    confidence[0, penalty_mask] *= 0.8  # dampen repeated predictions
+```
+
+This is a band-aid — the model shouldn't need it — but it could reveal useful output hiding under the repetition.
+
+**5. Data is probably NOT the main problem.** 158 pairs is small, but Llama learned voice from the same 158 pairs. The issue is how LLaDA amplifies small distributional shifts, not insufficient data. Fix LR and rank first. If the model then produces coherent but generic output, *then* data quantity might be the bottleneck.
+
+### Run 2 plan
+
+```
+LR = 5e-5          # was 2e-4 — 4x lower
+LORA_R = 4          # was 16 — much less capacity
+LORA_ALPHA = 8      # keep alpha = 2 * rank
+EPOCHS = 2          # was 3 — stop before degeneration
+```
+
+If this still degenerates: try 2e-5 LR, or this may be a fundamental limitation of fine-tuning masked diffusion with small datasets — the generation mechanism amplifies small distributional shifts into catastrophic repetition in a way that autoregressive models don't.
