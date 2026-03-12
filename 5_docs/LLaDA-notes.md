@@ -224,12 +224,13 @@ Baseline canary generation (5 samples x 3 prompts) takes 12+ minutes on a T4 vs.
 1. **`.to()` crash on 4-bit models.** LLaDA's custom `modeling_llada.py` calls `.to(device)` after loading. bitsandbytes forbids `.to()` on quantized models. Fix: monkey-patch `PreTrainedModel.to` to no-op when `quantization_method` is set. (See Cell 4 in notebook.)
 2. **Layer names differ from Llama.** Despite `block_type="llama"` in config, the actual projection layers are `q_proj`, `k_proj`, `v_proj`, `ff_proj`, `up_proj` — no `o_proj`, `gate_proj`, or `down_proj`. Always run Cell 5 (inspect layers) before applying LoRA.
 3. **`sentence-transformers` version conflict.** Colab pre-installs `sentence-transformers` which wants `transformers>=4.41.0`. The `transformers==4.38.2` pin triggers a warning but doesn't break anything since we don't use `sentence-transformers`.
+4. **PEFT version must be pinned to 0.9.0.** Colab installs latest PEFT, which imports `EncoderDecoderCache` from transformers — added in 4.39+, doesn't exist in 4.38.2. This is a hard `ImportError`, not a warning. General rule: when you pin an old core library, pin its ecosystem dependents too.
+5. **bfloat16 doesn't work on T4.** T4 GPUs (Turing arch) lack bfloat16 tensor cores. Setting `bnb_4bit_compute_dtype=torch.bfloat16` silently falls back to FP32, roughly halving speed. Use `torch.float16`. Same applies to `autocast` in the training loop.
 
 ## Known Risks
 
 1. **No official fine-tuning scripts.** Authors explicitly won't release their training framework. Notebook adapted from SMDM repo (`finetune_mdm.py`) + LLaDA's GUIDELINES.md.
 2. **PEFT/LoRA not officially tested** with LLaDA's custom model class. Should work (standard nn.Linear layers internally), but untested.
-3. **transformers==4.38.2 pin** may conflict with newer PEFT/bitsandbytes versions.
 4. **No KV cache** means inference is slower per step than autoregressive models. Partially offset by fewer total tokens to generate (parallel unmasking vs. sequential).
 5. **4096 context window** vs. Llama's 128K. Not an issue for current pairs (avg ~622 tokens) but limits Canary C (long essay).
 
