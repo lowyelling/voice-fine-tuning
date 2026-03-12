@@ -255,6 +255,53 @@ We use the same quantization config (4-bit NF4, float16 compute) across all GPUs
 
 The root cause: no gradient checkpointing. With it, L4 would have been sufficient. Without it, all 32 layers of intermediate activations must be held in memory simultaneously for backprop.
 
+## Base Model Degeneration Problem
+
+The base LLaDA 8B Instruct model (no fine-tuning) cannot generate coherent long-form text. Outputs collapse into repetition cascades after 0-150 words: "and and and", "the the the", comma floods, subword loops ("ululululul", "ileenileenileen"). This happens at both FAST config (64 steps, 512 tokens) and FULL config (128 steps, 1024 tokens). Fine-tuning makes the degeneration worse (run 1) or delays it slightly (runs 2-3), but the root problem is in the base model's generation mechanism.
+
+### Root cause: confidence amplification in bidirectional attention
+
+LLaDA's iterative unmasking selects the most confident predictions first. With bidirectional attention, every masked position sees the same context simultaneously. When a common token gets committed in early steps, ALL remaining masked positions see it at once and become more confident about predicting the same token. This creates a positive feedback loop:
+
+1. Fine-tuning (or even base weights) gives common tokens ("the", commas, "and") a slight confidence edge
+2. In step 1, these tokens win the confidence race and get committed
+3. Every remaining MASK position sees the same repetitive context (bidirectional — all at once, not one at a time)
+4. This makes the model MORE confident about the same tokens for step 2
+5. Cascade → whole sequence collapses
+
+Autoregressive models don't have this because each position sees *different* left context. Position 50 sees a different sequence than position 100. In LLaDA, all positions see the same thing simultaneously — so a small distributional shift gets amplified catastrophically.
+
+### What we tried that didn't help
+
+| Fix | Result | Why it didn't work |
+|-----|--------|--------------------|
+| Lower LR (2e-4 → 5e-5) | Delayed cascade from 0 → 30-200 words | Reduced fine-tuning's contribution to the shift, but base model already has the tendency |
+| More unmasking steps (64 → 128) | Same degeneration, slightly more coherent runway | More steps = more iterations of the positive feedback loop, not fewer |
+| Longer generation (512 → 1024) | Same patterns, just more room to cascade | Doesn't address the mechanism |
+
+### Fixes to try (ranked by likelihood)
+
+**1. Repetition penalty in `generate_llada` (implemented, not yet tested).**
+Dampen confidence for tokens already committed in the generated region. Exponential: `confidence *= 0.8^count`. Breaks the positive feedback loop by making repeated predictions less likely to win the confidence race. This is NOT a band-aid — it fills a gap that autoregressive models handle implicitly via left-to-right context diversity. LLaDA's symmetric bidirectional attention needs an explicit symmetry-breaking mechanism.
+
+**2. Remove 4-bit quantization.**
+LLaDA's generation depends on accurate *relative confidence ranking* across all masked positions simultaneously. 4-bit NF4 quantization introduces noise into logits, distorting that ranking. Autoregressive models are more robust to quantization — they only need the argmax to be right one token at a time. LLaDA needs precise confidence scores across hundreds of positions at once. Small precision errors compound when the wrong token wins the confidence race.
+
+Try: 8-bit quantization (`load_in_8bit=True`), or fp16 with no quantization (~16GB for 8B model, fits on A100's 40GB).
+
+**3. Use the Base model instead of Instruct.**
+The LLaDA paper almost certainly benchmarked generation on `LLaDA-8B-Base`, not `LLaDA-8B-Instruct`. RLHF/instruction tuning makes the logit distribution more peaked — the model becomes very confident about certain outputs (safety refusals, formatting patterns). That peaked distribution is exactly what triggers the cascade. Evidence: Canary B (about Olympic athletes) triggers safety refusals in 5/5 samples at FULL config — the Instruct model's RLHF is actively distorting generation.
+
+Try: `GSAI-ML/LLaDA-8B-Base`. Loses chat formatting but gains a cleaner logit distribution.
+
+**4. Verify our generation code against the LLaDA repo.**
+The `generate_llada` function was written from the paper description, not copied from the authors' reference implementation. There might be differences in confidence scoring, remasking logic, or the Gumbel noise implementation that cause our version to be more cascade-prone.
+
+Check: https://github.com/ML-GSAI/LLaDA for official generation code and compare.
+
+**5. If nothing works: this may be a model-size / architecture limitation.**
+LLaDA 8B is a research model. Masked diffusion for text is a frontier. The 8B model may simply not generate long-form text well — the paper may have demonstrated it on shorter outputs where the cascade doesn't have time to start. If that's the case, the right call is to write up what was learned and move on. The experiment produced real insight about how masked diffusion generation fails, which is valuable regardless of output quality.
+
 ## Known Risks
 
 1. **No official fine-tuning scripts.** Authors explicitly won't release their training framework. Notebook adapted from SMDM repo (`finetune_mdm.py`) + LLaDA's GUIDELINES.md.
