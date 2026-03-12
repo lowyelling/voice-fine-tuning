@@ -186,26 +186,32 @@ This is a compromise — pure diffusion over 1024 tokens would need hundreds of 
 
 ### Inference Speed (the real tradeoff)
 
-Each step is a **full forward pass over the entire sequence** — no KV cache is possible because attention is bidirectional (every position could change what every other position attends to). Llama does one forward pass per token too, but each is cheap because the KV cache means it only computes attention for the new token against cached keys/values.
-
-LLaDA inference is significantly slower than autoregressive models:
-
-- **Llama/GPT-2:** 1 forward pass per token. KV cache means each pass only computes attention for the new token.
-- **LLaDA:** `steps_per_block x num_blocks` full forward passes over the **entire** sequence. With default config (gen_length=1024, steps=128, block_length=128): 8 blocks x 16 steps = **128 full forward passes**, each recomputing bidirectional attention over prompt + 1024 tokens. No KV cache possible.
-
 ### Inference Speed (the real tradeoff)
 
-LLaDA inference is significantly slower than autoregressive models:
+Each step is a **full forward pass over the entire sequence** — no KV cache is possible because attention is bidirectional (every position could change what every other position attends to). Llama does one forward pass per token too, but each is cheap because the KV cache means it only computes attention for the new token against cached keys/values.
 
 - **Llama/GPT-2:** 1 forward pass per token. KV cache means each pass only computes attention for the new token.
 - **LLaDA:** `steps_per_block x num_blocks` full forward passes over the **entire** sequence. With default config (gen_length=1024, steps=128, block_length=128): 8 blocks x 16 steps = **128 full forward passes**, each recomputing bidirectional attention over prompt + 1024 tokens. No KV cache possible.
 
-Baseline canary generation (5 samples x 3 prompts) takes 12+ minutes on a T4 vs. a couple minutes for Llama. This is the cost of iterative refinement — quality comes from multiple passes, but you pay for every one.
+**Measured speed:**
+- **T4 (float16):** ~8 tokens/sec. Baseline canaries (2 samples × 3 prompts × 512 tokens, fast config) = ~6 min.
+- **L4 (float16):** ~33 tokens/sec. Same baseline run = ~2 min. Smoke test (128 tokens): 3.9s.
+- Use fast config for iteration, full config for final comparison only.
 
 **Speed knobs:**
 - `GEN_STEPS`: fewer steps = faster but lower quality. 32-64 is fast for testing, 128 for final comparison.
 - `GEN_LENGTH`: fewer tokens to generate = fewer masks to unmask. 512 is fine for Notes, 1024 for essays.
 - `N_SAMPLES`: reduce to 1 for quick smoke tests, 5 for real comparison.
+
+### Why L4 GPU over T4
+
+**The real reason: VRAM.** T4 has 15GB, L4 has 24GB. Training at MAX_SEQ_LEN=2048 requires ~8.6GB just for attention maps (32 layers × 32 heads × 2048² × 2 bytes) — impossible on T4 after the model already uses ~8GB. L4 has ~16GB free after model loading, fitting 2048 comfortably.
+
+**Inference is ~3x faster** (not 10x as originally estimated). The 10x figure came from comparing L4 against T4 running bfloat16 that silently fell back to fp32. After fixing to float16, T4 baseline canaries took ~6 min vs L4's ~2 min. The speedup comes from:
+
+1. **More memory bandwidth.** T4: 320 GB/s, L4: 864 GB/s (~2.7x). LLaDA is heavily memory-bound — every forward pass reads the full model weights (no KV cache).
+2. **Newer architecture.** Ada Lovelace (2023) vs Turing (2018). More efficient cores, better scheduling.
+3. **L4 supports native bfloat16** (unlike T4), but we use float16 for both GPUs so this doesn't factor into the 3x number.
 
 ## Technical Details for the Notebook
 
@@ -226,6 +232,28 @@ Baseline canary generation (5 samples x 3 prompts) takes 12+ minutes on a T4 vs.
 3. **`sentence-transformers` version conflict.** Colab pre-installs `sentence-transformers` which wants `transformers>=4.41.0`. The `transformers==4.38.2` pin triggers a warning but doesn't break anything since we don't use `sentence-transformers`.
 4. **PEFT version must be pinned to 0.9.0.** Colab installs latest PEFT, which imports `EncoderDecoderCache` from transformers — added in 4.39+, doesn't exist in 4.38.2. This is a hard `ImportError`, not a warning. General rule: when you pin an old core library, pin its ecosystem dependents too.
 5. **bfloat16 doesn't work on T4.** T4 GPUs (Turing arch) lack bfloat16 tensor cores. Setting `bnb_4bit_compute_dtype=torch.bfloat16` silently falls back to FP32, roughly halving speed. Use `torch.float16`. Same applies to `autocast` in the training loop.
+6. **T4 OOMs at MAX_SEQ_LEN=2048 during training.** Attention maps scale O(n²): 2048 tokens × 32 layers × 32 heads × 2 bytes = ~8.6GB, exceeding remaining VRAM after the 4-bit model (~8GB). No gradient checkpointing available (LLaDA's custom model class doesn't support it). Fix: use L4 GPU (24GB) for 2048, or reduce to 1024 on T4.
+7. **L4 also OOMs at MAX_SEQ_LEN=2048.** L4 has 24GB but only ~14GB free after model loading. Attention maps (~8.6GB) fit, but backprop without gradient checkpointing also stores all intermediate activations across 32 layers (hidden states, MLP outputs, pre-softmax attention, LoRA adapter outputs). Short sequences fit — the OOM hits on longer examples. Fix: A100 (40GB, ~32GB headroom) or reduce to 1536 on L4.
+8. **Gradient checkpointing confirmed unsupported.** `LLaDAModelLM.supports_gradient_checkpointing` is False — calling `prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)` raises `ValueError`. This is a limitation of the custom model class, not a PEFT issue. Must pass `use_gradient_checkpointing=False`.
+
+## Hardware Note for the Five-Way Comparison
+
+LLaDA baselines generated on **L4 GPU** (24GB), training on **A100 GPU** (40GB), Llama/GPT-2 on **T4 GPU** (16GB). This doesn't affect the comparison — the hardware affects **speed**, not **output quality**. Same model, same weights, same quantization, same temperature produces identical tokens on all GPUs. The GPU is just doing the same matrix multiplication faster.
+
+Where hardware *would* invalidate a comparison:
+- Different **quantization** (e.g., 4-bit on T4 but 8-bit on A100) — different weights = different outputs
+- Different **compute dtype** (fp16 on one, bf16 on the other) — rounding differences can butterfly-effect into different token choices
+
+We use the same quantization config (4-bit NF4, float16 compute) across all GPUs, so the comparison holds. A100 was necessary because LLaDA doesn't support gradient checkpointing, and training at MAX_SEQ_LEN=2048 (matching Llama) exceeds VRAM on both T4 (15GB) and L4 (24GB).
+
+### GPU progression
+| GPU | VRAM | Result at MAX_SEQ_LEN=2048 |
+|-----|------|---------------------------|
+| T4 | 15GB | OOM instantly — attention maps alone exceed headroom |
+| L4 | 24GB | OOM on longer examples — fits short sequences but backprop activations overflow |
+| A100 | 40GB | ~32GB headroom, fits comfortably |
+
+The root cause: no gradient checkpointing. With it, L4 would have been sufficient. Without it, all 32 layers of intermediate activations must be held in memory simultaneously for backprop.
 
 ## Known Risks
 
