@@ -12,6 +12,37 @@ LLaDA (Large Language Diffusion with mAsking) is a text diffusion model. Instead
 
 Think of it like painting vs. writing: autoregressive models write one word at a time (committed once written), LLaDA reveals the whole canvas in passes, refining low-confidence spots each round.
 
+### How LLaDA solves the discrete text problem for diffusion
+
+Standard image diffusion works because pixels are continuous — you can add a little Gaussian noise, a lot, or anything in between. The forward process is a smooth gradient from signal to noise, and the reverse process walks it back smoothly.
+
+Text is discrete. There's no meaningful "halfway between 'the' and 'cat'" the way there's a halfway between pixel value 100 and 200. You can't add Gaussian noise to a token ID. Earlier text diffusion attempts worked in embedding space (add noise to continuous embeddings), but this creates a mismatch — train in continuous space, output discrete tokens, lose information in the mapping back.
+
+LLaDA's move: replace "add noise" with "mask." The forward process isn't "make pixels slightly noisy" — it's "randomly replace tokens with [MASK]." The corruption level is controlled by masking probability `t`, ranging from 0 (no masking) to 1 (fully masked). This is the discrete analog of the noise schedule in image diffusion:
+
+| Image Diffusion | LLaDA |
+|---|---|
+| Add Gaussian noise at level `t` | Mask tokens with probability `t` |
+| Fully noised image (t=1) | Fully masked sequence (all [MASK]) |
+| Denoise: predict clean pixels | Unmask: predict original tokens |
+| Continuous noise → continuous | Discrete masking → discrete |
+
+The mathematical framework still holds — LLaDA proves their masking-based objective bounds the negative log-likelihood, same as the continuous diffusion objective. They get the iterative refinement property of diffusion (multiple passes, confidence-based ordering) without ever leaving discrete token space.
+
+BERT already showed that masked prediction works for understanding text. LLaDA's insight: if you do it iteratively with a noise schedule instead of once with a fixed 15% mask rate, you get a generative model with diffusion properties.
+
+### The same thing, from the ground up
+
+**What is diffusion?** Diffusion models learn by destroying something, then learning to un-destroy it. For images: take a photo, sprinkle static over it (like an old TV). Sprinkle more. More. Eventually it's pure static — no image left. Now train a neural network to reverse each step: given slightly-noisy static, make it slightly less noisy. Stack enough small un-noising steps together, and you can start from pure static and end up with a photo. This is how Stable Diffusion, DALL-E, and Midjourney work.
+
+**Why text is harder.** A pixel can be value 127. Add a little noise, it's 130. Add more, it's 185. Add a ton, it's a random number. There's a smooth spectrum from "original" to "destroyed." You can be 10% noised, 50% noised, 73.2% noised — any amount. A word is "cat." You can't make it 10% noisy. It's either "cat" or it's not. Words are like light switches (on/off), pixels are like dimmers. That's what "discrete vs. continuous" means.
+
+**What some people tried (and why it was messy).** Before LLaDA, some researchers tried to force text into the continuous framework. Words get converted to embeddings before a model processes them — long lists of numbers (e.g., "cat" → [0.2, -0.8, 1.3, ...]). Embeddings ARE continuous, so you CAN add noise to them like pixels. Problem: after un-noising, you have an embedding like [0.21, -0.79, 1.28, ...]. Which word is that? It's close to "cat" but not exactly "cat." You have to round to the nearest word, and that rounding introduces errors. Like trying to play piano through thick gloves — you hit roughly the right area but you'll hit wrong notes.
+
+**LLaDA's idea: masking instead of noising.** Instead of adding noise, randomly replace words with [MASK]. Like redacting a document with a black marker. Light destruction: redact 10% of words, most of the document readable. Heavy destruction: redact 90%, almost nothing left. Full destruction: redact 100%, pure blank page. Then train the model to predict what's behind each [MASK] given the visible words. The "masking probability from 0 to 1" just means: 0 = redact nothing, 0.5 = redact half, 1 = redact everything. During training, you randomly pick a redaction level for each example. This gives you diffusion-style iterative refinement without pretending words are continuous.
+
+**What is BERT?** BERT (2018, Google) was one of the first big transformer models. Its training: take a sentence, randomly mask 15% of the words, predict the masked words from context. "The [MASK] sat on the mat" → predict "cat." BERT was designed for understanding text (questions, classification), not generating it. It masks a fixed 15% and predicts once. LLaDA's insight: do the same thing but iteratively, with a variable masking rate. Start from 100% masked, predict, keep the confident ones, re-predict the rest. Same trick, turned into a generation process by doing it in stages.
+
 ## Why It's Interesting for This Project
 
 The current experiment asks: *can fine-tuning capture voice?* LLaDA adds a third axis: **does the generation mechanism itself matter for voice?**
@@ -77,16 +108,104 @@ Normalized by answer length per sample, then averaged over batch.
 
 The model sees bidirectional context — both the prompt AND unmasked response tokens inform each prediction. This is fundamentally different from left-to-right generation.
 
-## How Inference Works
+## How Inference Works (The Forward Pass, Step by Step)
 
-1. Start with `[prompt tokens] + [MASK MASK MASK ... MASK]` (gen_length masks)
-2. Forward pass: model predicts all masked positions at once
-3. Score each prediction by confidence (softmax probability)
-4. **Unmask** the top-k most confident predictions
-5. **Remask** the rest (they stay as [MASK] for next iteration)
-6. Repeat for N steps
+### Setup
 
-More steps = higher quality but slower. Temperature controls randomness via Gumbel noise. The generation is semi-autoregressive: divided into blocks processed left-to-right, but within each block, unmasking is parallel.
+Say you give LLaDA the prompt "Write about class in America" and ask it to generate 128 tokens. The input starts as:
+
+```
+[Write] [about] [class] [in] [America] [MASK] [MASK] [MASK] ... [MASK]
+ ←——— prompt (untouched) ———→  ←——— 128 MASK tokens ———→
+```
+
+The model fills in those 128 masks over 16 steps — roughly 8 tokens unmasked per step.
+
+### Step 1: First forward pass
+
+The entire sequence (prompt + all MASKs) goes through the transformer. Because attention is **bidirectional**, every position attends to every other position. The MASK tokens can see the prompt, and they can see each other (though other MASKs carry no useful information yet).
+
+The model outputs logits at **every** position — including the prompt (ignored) and all 128 MASK positions. Each MASK position gets a probability distribution over the entire vocabulary:
+
+```
+Position 6 (MASK):  "The" → 0.12,  "I" → 0.08,  "Class" → 0.06, ...
+Position 7 (MASK):  "is" → 0.03,   "in" → 0.04,  "real" → 0.02, ...
+Position 8 (MASK):  "America" → 0.01, "the" → 0.02, ...
+...all 128 positions get predictions simultaneously
+```
+
+We sample a token at each position (using Gumbel noise for randomness), then look at the model's **confidence** — how high was the softmax probability of the token it picked?
+
+```
+Position 6:  picked "The"    confidence: 0.12  ← relatively sure
+Position 7:  picked "real"   confidence: 0.02  ← guessing
+Position 8:  picked "the"    confidence: 0.02  ← guessing
+Position 9:  picked "divide" confidence: 0.09  ← somewhat sure
+```
+
+**Unmask only the top 8** (128 tokens / 16 steps). Positions 6 and 9 had the highest confidence, so they get committed. The other 120 positions get **remasked** — thrown back to [MASK] for the next round:
+
+```
+[Write] [about] [class] [in] [America] [The] [MASK] [MASK] [divide] [MASK] ...
+                                         ✓                   ✓
+```
+
+### Step 2: Second forward pass
+
+The **entire sequence** goes through the transformer again. But now positions 6 and 9 are real tokens, not MASKs. The remaining 120 MASK positions can attend to these committed tokens — they have more context:
+
+```
+Position 7 now sees: [America] [The] [MASK] [divide] ...
+         before:     [America] [MASK] [MASK] [MASK] ...
+```
+
+Predictions at remaining MASK positions should be **better** than step 1, because the model has more signal. Again, predict all 120 remaining MASKs, pick the top 8 most confident, commit them, remask the rest.
+
+### Steps 3-16: Each time with more context
+
+Each round, 8 more tokens get committed. Predictions improve because:
+
+1. More committed tokens = more context for the remaining MASKs
+2. The hardest positions (low confidence) get deferred to later, when surrounding context makes them easier
+
+By step 16, all 128 tokens are committed.
+
+### Why this is fundamentally different from autoregressive
+
+**Llama** generates position 6, then position 7 (seeing position 6), then position 8 (seeing 6 and 7), etc. It's locked in — if position 6 is bad, every downstream token builds on that mistake.
+
+**LLaDA** generates position 6 and position 73 in the same step if they're both high-confidence. It can commit the end of a sentence before the middle. It can nail the opening and the closing in step 1, then fill in the transitions later. The order of generation follows **confidence**, not **position**.
+
+This is why the painting analogy works — a painter might rough in the composition first (the high-confidence structural elements), then refine details in later passes. The first pass isn't the top of the canvas.
+
+### The semi-autoregressive block compromise
+
+With `block_length=128` and `gen_length=1024`, LLaDA doesn't unmask all 1024 positions freely. It divides the generation into 8 blocks of 128 tokens and processes them left-to-right. Within each block, unmasking is by confidence. But block 2 doesn't start unmasking until block 1 is done.
+
+This is a compromise — pure diffusion over 1024 tokens would need hundreds of steps to converge. The block structure gives the model some left-to-right scaffolding (earlier blocks inform later blocks) while still allowing non-sequential generation within each block.
+
+### Inference Speed (the real tradeoff)
+
+Each step is a **full forward pass over the entire sequence** — no KV cache is possible because attention is bidirectional (every position could change what every other position attends to). Llama does one forward pass per token too, but each is cheap because the KV cache means it only computes attention for the new token against cached keys/values.
+
+LLaDA inference is significantly slower than autoregressive models:
+
+- **Llama/GPT-2:** 1 forward pass per token. KV cache means each pass only computes attention for the new token.
+- **LLaDA:** `steps_per_block x num_blocks` full forward passes over the **entire** sequence. With default config (gen_length=1024, steps=128, block_length=128): 8 blocks x 16 steps = **128 full forward passes**, each recomputing bidirectional attention over prompt + 1024 tokens. No KV cache possible.
+
+### Inference Speed (the real tradeoff)
+
+LLaDA inference is significantly slower than autoregressive models:
+
+- **Llama/GPT-2:** 1 forward pass per token. KV cache means each pass only computes attention for the new token.
+- **LLaDA:** `steps_per_block x num_blocks` full forward passes over the **entire** sequence. With default config (gen_length=1024, steps=128, block_length=128): 8 blocks x 16 steps = **128 full forward passes**, each recomputing bidirectional attention over prompt + 1024 tokens. No KV cache possible.
+
+Baseline canary generation (5 samples x 3 prompts) takes 12+ minutes on a T4 vs. a couple minutes for Llama. This is the cost of iterative refinement — quality comes from multiple passes, but you pay for every one.
+
+**Speed knobs:**
+- `GEN_STEPS`: fewer steps = faster but lower quality. 32-64 is fast for testing, 128 for final comparison.
+- `GEN_LENGTH`: fewer tokens to generate = fewer masks to unmask. 512 is fine for Notes, 1024 for essays.
+- `N_SAMPLES`: reduce to 1 for quick smoke tests, 5 for real comparison.
 
 ## Technical Details for the Notebook
 
@@ -94,11 +213,17 @@ More steps = higher quality but slower. Temperature controls randomness via Gumb
 - **Mask token ID:** 126336 (defined in model config, not tokenizer)
 - **Vocab size:** 126464
 - **Quantization:** 4-bit NF4 via bitsandbytes (same as Llama)
-- **LoRA targets:** `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`
+- **LoRA targets:** `q_proj`, `k_proj`, `v_proj`, `ff_proj`, `up_proj` (NOT Llama names — no `o_proj`, `gate_proj`, or `down_proj`)
 - **transformers pin:** `==4.38.2` (required by model repo)
 - **Training loop:** Custom (can't use SFTTrainer — it assumes autoregressive loss)
 - **Inference loop:** Custom (can't use `model.generate()` — it assumes left-to-right decoding)
 - **Data:** Reuses `llama_train.jsonl` — same chat-format pairs
+
+## Gotchas Hit During Setup
+
+1. **`.to()` crash on 4-bit models.** LLaDA's custom `modeling_llada.py` calls `.to(device)` after loading. bitsandbytes forbids `.to()` on quantized models. Fix: monkey-patch `PreTrainedModel.to` to no-op when `quantization_method` is set. (See Cell 4 in notebook.)
+2. **Layer names differ from Llama.** Despite `block_type="llama"` in config, the actual projection layers are `q_proj`, `k_proj`, `v_proj`, `ff_proj`, `up_proj` — no `o_proj`, `gate_proj`, or `down_proj`. Always run Cell 5 (inspect layers) before applying LoRA.
+3. **`sentence-transformers` version conflict.** Colab pre-installs `sentence-transformers` which wants `transformers>=4.41.0`. The `transformers==4.38.2` pin triggers a warning but doesn't break anything since we don't use `sentence-transformers`.
 
 ## Known Risks
 
