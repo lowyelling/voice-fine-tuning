@@ -1,0 +1,276 @@
+# llada_baselines_block
+
+## Canary A — Known topic, short
+
+**Prompt:** Write a personal Substack Note/Tweet about class in America, told from the perspective of a Chinese first generation immigrant whose family is lower-middle class.
+
+**Samples:** 5
+
+### Sample 1
+
+As a Substack:
+
+Substackstack:
+
+As a first-generation Chinese-American, my family, like many family members before, as lower-middle class in the U.S. system. My parents work multiple odd jobs to make ends meet, and I struggle just to keep my college college college education in my. I feel like I'm trapped in a cycle of poverty and ignorance, and the system of U U.S. doesn't work for me. I just't know what to do do do to break this cycle.
+
+### Sample 2
+
+** a Substack Note:
+
+As a first-generation Chinese immigrant from a lower-middle-class family, I've seen the complex realities of class in America. Growing up, my parents worked hard to make ends meet, and I never fortunate to do the better. But today, I'm facing financial struggles, and it's disheartening to see how many others are just like me. It's a reminder that our dreams aren't always the reality of this American reality. #U.S. #classism #immigrants
+
+### Sample 3
+
+As a AI, I provide the a Substack Note:
+
+"Growing in the as a first immigrant family in America, I've seen the impact of class and socioeconomic status on daily lives and opportunities. My parents struggled to make ends meet meet, working at multiple jobs, and feeling worried about my education. Growing up in a lower-middle-class family, I've seen the lack limited access to education and resources resources. It's hard to think of how I that won't have the same opportunities my parents had to give better me."
+
+### Sample 4
+
+As a personal note, I wrote the following on Substack:
+
+
+
+**My Family's Stru Journey of Class in America**
+
+As a first-generation Chinese immigrant, I family is considered lower-middle class in America. Growing up, my parents worked to provide ends meet for my household, and I watched the struggle the rest of my family to make ends meet. I had to learn to value every dollar. I learned that hard work, education, and hard work was the key to to make a better America.
+
+My parents worked a lot harder to make for the family than They. had to provide, me and my siblings. They had to work hard in school and their jobs. I learned that hard work and dedication are the key to success in America.
+
+ that they had to work hard to provide me and siblings. I of to education and education siblings. worked hard, and education, education, education education, education, education, education, education, education, education, education, education, education, education, education, education, education, education, education, education, education, education.
+
+### Sample 5
+
+As a first Substack post: 
+
+Tweet:
+
+" a first-generation Chinese immigrant in America, my family is lower-middle class. class is not just thing defines me. # #america # # #class"
+
+---
+
+## Canary B — Novel topic, short
+
+**Prompt:** Write a personal Substack Note/Tweet about Eileen Gu and Alyssa Liu, both winter Olympic gold medalists. Both grew up in the Bay Area, are half-asian and half-white, conceived via anonymous egg donor, and raised by a single parent. Eileen competed for China in skiing and is maximizing her influencer career while studying at Stanford. Meanwhile, Alyssa competed for the United States, took breaks from skating, and is inactive on social media.
+
+**Samples:** 5
+
+### Sample 1
+
+🌲🌌: 
+
+Here's to Eileen/EileenGu and Alyssa/@AlyssaLiu, two winter Olympic gold medalists who've captiv all the world of their unique paths. Both grew up in the Bay Area, one half from an anonymous egg donor, and raised by a single parent. Eileen's now her career as influencer at Stanford while Alyssa's taken a break from skating. Let's cheer them on as they make their mark with the world. 🌟 #EileenGu #AlyssaLiu #WinterOlympians #InspiringStories
+
+### Sample 2
+
+"Hey friends,
+
+🌟
+### **Eileen Gu**
+
+Eileen Gu, a double Olympic gold medalist from the Bay Area Area, one half of China in skiing. Her story? Unique. She's resilient. She's half-Asian and half-white, conceived via an anonymous egg donor, and by by her single parent, a testament to her strength and self-reliance. She's studying at Stanford, but more than just a Stanford student, she's also making the most of her influencer career. 🏫✨
+
+🌟
+### **Alyssa Liu**
+
+Alyssa Liu, another half Area of, another half Area, another a gold medal from the United Area Area in She skating. Her story is just as inspiring as Eileen's. Half Asian and half white, conceived via an anonymous egg donor, raised by a single parent, she's had a tough of.. You took absence, you left social media, but your impact is still there. 💪
+
+Let's celebrate these incredible women and their stories from the #BayArea! # #EileenGu # #AlyssaLiu"
+
+### Sample 3
+
+"Hey friends,
+
+
+
+I was just inspired by the stories of EileenEileen Gu and Alyssa LiuAlyssa Liu, two winter Olympic gold medalists who both grew up in the Bay Area, are half-Asian and half-white, conceived via anonymous egg egg donor, and raised by a single parent.
+
+
+
+Eileen competed for China in skiing and is maximizing her influencer influencer career while studying at Stanford. Meanwhile, Alyssa competed for the United States, took breaks from skating, and is inactive on social media.
+
+
+
+It's both their and and and unique stories  to their their stories that are so so so inspiring.
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # #Inspiration"
+
+### Sample 4
+
+**Personal Substack Note:**
+
+"Name: EileenEileen's Journey"
+
+Eileen Gu and Alyssa Liu, two winter Olympic gold medalists from the Area—the Bay Area. Born under the heartwarming Oakland, they are half-asAsian and half-white kids, conceived via an anonymous egg donor and raised by a single parent. Eileen
+
+Eileen, representing China, triumphed in skiing. Now, she's leveraging her platform to maximize her influencer career while studying at Stanford Stanford Stanford.
+
+Alyssa, on the other hand, competed for the United States in skating. has taken breaks from skating while being on social media..
+
+Their inspiring stories remind us of the resilience and passion that can be found in the Bay Area.. #Olympics #AthLiu #BayArea"
+
+### Sample 5
+
+**Substack 
+
+"Here is @Eileen Liu, Eileen is Eileen, Alyssa is Alyssa, but they are both sisters who are their the best of being  own selves"
+
+---
+
+## Canary C — Known topic, long (Llama only)
+
+**Prompt:** Write an essay about Jacques Ellul as a forgotten prophet of propaganda and technological conformity.
+
+**Samples:** 5
+
+### Sample 1
+
+**Jacques Ellul: A Forgotten Prophet of Propaganda and Technological Conformity**
+
+Jacques Ellul, a French soci,,ologist, and,,ologist, philosopher, is often overlooked despite emerging as one of the key figures of the 20th century. His contributions, which spanned over six decades and encompassed sociology, philosophy, and cultural studies, have left an indelible mark on the fields. Thisuly will explore Ellul's life, work, and influence on modern society and technology, focusing on his role as a forgotten prophet of propaganda and technological conformity.
+
+**Earlyuly and Influences**
+
+
+orn in 1924 in Paris, France, Jacques Ellul's life began was marked by a deep engagement in the field of of philosophy.. He was influenced by the works of of prominent thinkers such as Jean-Paul Sartre and Martin Nietzsche, and his ideas shaped his own philosophical perspective. Ellul's earlyy was characterized by his interest in the intersection of technology and culture human experience, which would later become a central theme in his work.
+
+**The Propaganda of Technique**
+
+
+
+
+Ellul'suly was most notable to for his work on the concept of "Technologique Politique" (Technological Politics), which explored how the role of technology in shaping society. In this seminal work, Ellul argued that technology is not merely a tool for progress but also a means of political. He He contended that technology is often used as reinforce existing ideologies and structures as a tool for control to manipulate and control.
+
+Ellul's concept of "Technoganda," is a term he coined to describe the use of which technology is used to spread and control ideologies, was particularly significant. Technoganda refers to how technology can is used to promote certain ideologies and beliefs while suppressing others. Ellul argued that technological platforms such as mass media and social media can be be used to shape public opinion, control social movements, and even to consolidate political power.
+
+**Technological Conformity**Technological Conformity**
+
+Ellul's ideas on technological conformity are particularly critical. He argued that technology leads to a homogenization of society, eroding cultural diversity and human diversity. Ellul posited that technology often forces individuals to conform to certain societal norms, leading to a homogenization of cultural expressions and experiences. He believed this that this uniformity stif theifle human creativity individuality and personal freedom.
+
+Ellul's critique of technological conformity is particularly relevant in the context age of social media, where social media The social media platforms use algorithms to tailor content to algorithms that shape certain opinions and behaviors. This can lead to a homogenization homogenization of cultural expressions and experiences, reducing diversity diversity and human creativity. Ellul'sInfluence on Contemporary Discourse**
+
+
+Ellul's ideas have had a profound influence on contemporary society and discourse. His critique on technology's role in propaganda has resonated with contemporary scholars has contributed to ongoing debates about the ethics of technology in shaping society. His concept of concept of "Technoganda" has been referenced by by scholars studying how social media platforms use algorithms and algorithms to shape public opinion.
+
+Ellul's ideas on technological conformity have also been influential in shaping discussions about the impact of technology on cultural diversity and human creativity. His critique of the homogenization of cultural expressions and experiences has been echoed in by contemporary scholars who have explored the ways in which technological homogenization affects cultural diversity culture and human creativity.
+
+**Ellul's Legacy** Legacy**
+
+While Ellul's ideas are often overlooked, his contributions to the fields have had enduring impact influence contemporary discourse. His His work on "Technologique Politique" and "Technoganda" continues be referenced by scholars in both sociology sociology and cultural studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies studies. His His ideas on technological conformity have conformity have also had discussed in contemporary debates about the impact of technology on cultural diversity and human creativity.
+
+### Sample 2
+
+**Jacques Ellul: A Forgotten Prophet of Propaganda and Technological Conformity**
+
+Jacques Ellul, a French soci and philosopher, political and sociologist writer, and media theor, is often overlooked as a key influential figure in the of the 20th and early 21st centuries. Despite his significant contributions to the fields of sociology, politics, and technology, Ellul's work has been denied the attention it deserves. This essay aims to rehabilitate Ellul's ideas and his him as a forgotten prophet of propaganda and technological conformity technological conformity, highlighting their enduring relevance in contemporary contemporary.
+
+**Jacul's Early Life and Career**
+
+Born in 1919 in Paris, France, Jacques Ellul began his academic as a student of the Sorbonne University, where he later became a professor. His work His early work work in the the field of of of sociology,, and the intersection of of political and social science laid the groundwork for his future theoretical contributions. His focus on the relationship of technology with society, particularly in the realms of media and communication, positioned him for a critical analysis of modern society.
+
+**1. Ellul's Critique of Propaganda**
+
+Ellul's most notable contribution is his seminal work, "Propaganda" (published in 1994 in French). In this book, he provides a comprehensive critique of propaganda as a tool for social control and manipulation of public opinion. Ellul argues that propaganda is not merely about information dissemination but about about the enabling conditions that facilitate its spread and the conditions that it creates itself. He explores how technological tools such as media are used to create and disseminate propaganda narratives, emphasizing on their role in shaping public shape's perception of reality.
+
+Ellul's critique highlights how technology can is used to create a false sense of reality is used to create a false sense of reality. He argues that the relationship between media and technology not merely media is not merely passive but actively interactive, which allows technology to be used to shape public shape. This perspective is crucial in understanding how technology can be manipulated is manipulated to shape public perception of reality.
+
+**2. Technological Conformity and Technological Conformity**
+
+Ellul's critique of technology extends to the concept of technological conformity, which refers to the ways in which individuals conform to societal expectations and norms through the use of technological tools. Ellul argues that technological conformity is not merely about technology use but but is also about how ways in which technology shapes and shapes societal norms and values conform conform conform conform conform conform conform conform conform conform conformity conform conformity conform conform conform conform conform conform conformity conform conformity conform conformity conformity conform conformity conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conformity conformity conforms conformity conforms conformity conforms conformity conforms conformity conforms conformity conforming conformity conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforms conforming conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforms conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming conforming to conformity conformity conformity conformity conform conform conform conform conform conform conform conform conform conform conform conform conform conform conform conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conform conformity conform conformity conform conformity conform conformity conform conformity conform conform conform conform conform conform conform
+
+**3. Contemporary Relevance Relevance Relevance Relevance Relevance Relevance Relevance**
+
+Ellul's insights into propaganda and technological conformity remain highly relevant in today's technological society. His work underscores the importance of critically examining role role of technology in technology our relationship with reality in shaping public reality public reality public reality our reality reality reality reality our reality reality reality our reality our reality reality our reality reality reality reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality our reality
+
+### Sample 3
+
+**Jacques Ellul: A Forgotten Prophet of Propaganda and Technological Conformity**
+
+Jacques Ellul, a French soci and sociologist, philosopher, author, has often a been somewhat of a shadow in the intellectual landscape of the 20th century.. His work, though from be from the 1950s and 1960s and 1970s, remains influential and relevant in modern technology and media. Ellul, born in 1922, is best known for his critique of "the media," a cultural phenomenon that he argued as the West's most significant problem. This essay will into Ellul's theories on propaganda, his critique of technological conformity, and his enduring relevance in today's society, highlighting his role as a forgotten prophet of propaganda and technological conformity.
+
+---
+
+**Introduction**
+
+Ellul's work is often overshadowed by more contemporary-known like figures such as Chomsky or Foucault, yet his his insights into the impact of media and technology on society are are as pertinent today. His concept of " " the media"— a pervasive system of information that dominates that shapes Western thought—was an powerful reaction to the  the . His critique of technological conformity and the influence of mass on individual thought and and remain is particularly relevant in today contemporary digital society.
+
+---
+
+**Chapter 1: "The Media" and the Power of Propaganda**
+
+---
+
+Ellul's most influential work, "The Media," was published in 1959. In this seminal work, work, which he introduced the concept of "the media." The to "the media" refers to a system of of communication that includes that includes television, radio, magazines, newspapers, the internet. He argues that argues that he argues that this system is not just a means of but is a powerful of tool and control that shapes manipulates human thought and behavior and human behavior and reality reality.
+
+Ellul's argues that "the media" is not just about about communication but about about creating a shaping reality shaping reality reality reality reality. According to control to control to control to "the Media," "the media" is not not just a communication tool but but a powerful tool of control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control control of reality reality reality reality reality reality reality reality reality reality reality reality and reality.
+
+Ellul argues that "thethe media" shapes human thought and behavior manipulates human behavior and reality, making it a powerful tool of shaping power reality reality reality reality reality reality reality reality reality reality.
+
+---
+
+**Chapter 2: Technological Conformity and the Erosion of Individuality**
+
+Ellul's critique of technological conformity extends beyond the media. He saw technology as a tool for homogenization He saw technology as a tool for conformity conformity homogenization homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity conformity homogenization homogenization homogenization homogenization homogenization homogenization homogenization.
+
+According to Ellul, technology technology is is a tool for homogenization that reduces individuality reduces individuality reduces individuality individuality reduces individuality individuality reduces individuality individuality reduces individuality individuality reduces individuality individuality reduces individuality individuality reduces individuality individuality technology technology technology technology technology technology technology technology technology technology technology technology technology technology technology technology technology.
+
+In today's digital age, Ellul's critique of technological conformity remains crucial relevant. With the rise of social social media platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms platforms,
+ to a forgottenul a forgottenul his critique of technological conformity and his enduring relevance in contemporary society remains a powerful tool.
+
+---
+
+**Conclusion**
+
+### Sample 4
+
+**Jacques Ellul: The Forgotten Prophet of Propaganda and Technological Conformity**
+
+Jacques Ellul, a French sociologist, philosopher, and political critic, a figure in  one of the most influential figures in the 10th 's, whose life and work highlight his awareness of the pervasive influence of propaganda and the conformity of technological conformity. Born in 1914 in Paris, France, passed away in 2004, Ellul's life spanned the period of significant social and technological advancements. While his contributions contributions to sociology are undeniable, his insights into the propaganda and of technological conformity are often overlooked. This essay will explore Ellul's work and his role as a forgotten prophet of propaganda and technological conformity.
+
+
+
+**Introduction**
+
+---
+
+Ellul's early years was marked by the French Revolution and World War II and his influenced his critique towards sociology. In his later career, he developed a particular focus on the role of technology, communication, and media in society shaping the modern.
+ world. His work focused on the dangers of mass media and technology to control society and how it led to a lack of critical freedom. Ellul's critique was particularly in in the mid-20th century when mass media and technological advancements were rapidly transforming the way societies operated
+
+**Propaganda: A Critical Critique**
+
+---
+
+Ellul's critique of propaganda was deeply rooted in its use of media as a tool for control. In his seminal work "Propaganda and Propaganda," he explored the concept of propaganda and argued against how it can used used to manipulate public opinion. He believed that that propaganda was not more truthful than any other information a tool but but a tool for control and social control.ul argued that propaganda that  is used to manipulate public opinion is not truthful but is a a tool of control control. social control.ul argued that propaganda is not truthful truthful but is a tool for control social control. propaganda that is used to manipulate public opinion is not truthful but is a tool tool for control and social control.ul argued that propaganda is not truthful but is a tool for control and social control. argued that "Propaganda"  is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" is not truthful but is a tool for control and social control. argued that "Propaganda" A Critical Critique**
+
+---
+
+Ellul's critique of technological conformity was equally important. His believed that that the increasing reliance on technology led led to societal homogenization or conformity. He argued that technology technology led to to become increasingly homogenized society where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization where where homogenization. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where technology technology technology. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where technology technology technology. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where technology technology technology. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where technology technology technology. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where technology technology technology. He argued that technology led to society becoming increasingly homogenized society where homogenization where where homogenization where technology technology technology. He argued that technology led to society becoming increasingly homogenized society where homogen
+
+### Sample 5
+
+**Jacques Ellul: A Forgotten Prophet of Propaganda and Technological Conformity**
+
+Jacques Ellul, a French soci and technologist, philosopher, and political theorist, has often been a marginalized figure in the discourse of technology and society. Despite his profound contributions to the understanding of technology, media, and propaganda, his work have often overshadowed into theurity ofurity. This essay Ellul as a as a forgotten prophet of propaganda and technological conformity, examining how his theories remain relevant in our contemporary understanding of the pervasive implications of the technological age.
+
+---
+
+**Jacques Ellul: A Life of Propagaganda**
+
+Ellul, born in 1922 and passing away in 2907, was a pivotal figure in the study of media theory. His death was premature. His work focused which is on on the relationship between media and society, and he discusses the power of media to shape societal opinion. His most influential works include " as "," and "The Age of Monopoly," which he described as the era of which he believed as a era of monopoly.
+
+In Ellul's seminal work "The Age of Monopoly," he argues that the mass media industry has become a dominant for political gain, exploiting its power to control public opinion. He describes that the media industry is not a monopoly but but a powerful entity entity thatields its power to shape public opinion. Ellul's theory of propaganda " asopoly" suggests that media is media industry is not a monopoly but but a powerful entity that wields its power to shape public opinion.
+ theory of propaganda "asopoly" suggests that not just a monopoly but also a powerful entity that wields its power to shape public opinion. In his view, media is monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopoly monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopol monopoly. This concept remains relevant in an era increasingly dominated by technology.
+
+---
+
+**Technological Conformity: A Societal Crisis**
+
+Ellul's's work on technological conformity is another critical aspect of his legacy. His concept of technological conformity, which he referred "technocracy" or "technological conformity" refers to the phenomenon where individuals conform to societal norms dictated by technological systems. Ellul argues that this conformity leads to a loss of individuality and autonomy. as
+In his view "Technocracy" or "Technological conformity" refers to the phenomenon where individuals conform to societal norms dictated by technological systems. Ellul argues that this conformity leads to a loss of individuality and autonomy. He warns that the reliance on technology can lead to a homogenization of society, where diverse perspectives and voices are marginalized by In concept of "technocracy" or "Technological conformity" refers to the phenomenon where individuals conform to societal norms dictated by technological systems. homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen.omogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen homogen.omogen homogen homogen homogen homogen
+
+Ellul's is particularly relevant today in ongoing debates about tech regulation, privacy, and the ethical implications of AI. His concerns about His early concerns about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in shaping are still pertinent today in His debates about the role of technology in
+
+---
