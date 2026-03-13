@@ -21,8 +21,8 @@ Compared our `generate_llada` against the official LLaDA repo's `generate()` fun
 | 5b | `block_length=64`, `steps=256` | Their ablation found 64 > 128, and more steps = dramatically better quality | **PARTIAL.** Short outputs improved (some fully coherent). Long outputs get more runway but still cascade. |
 | 5c | fp16 (no quantization) on A100 | Tests whether 4-bit distorts confidence rankings across positions | **PARTIAL.** Structural coherence improved (essay sections, formatting). Cascade still hits at ~300-400 words. Short-form (128 tokens) clean. |
 | — | Base model instead of Instruct | Tests whether RLHF peaked distributions trigger the cascade | **SKIP** — Instruct needed for instruction-following canary prompts |
-| 5d | `confidence_eos_eot_inf=True` | Paper Appendix B.4 warns about EOS flooding in low-confidence remasking | Next |
-| 5e | Combine all fixes that helped | Stack the winning changes from 5a-5d | Final run |
+| 5d | `SUPPRESS_EOS=True` (EOS/EOT confidence → -inf) | Paper Appendix B.4 warns about EOS flooding in low-confidence remasking | **WORSE.** Removed natural stopping points, increased cascade surface area. New failure mode: sentence-level loops. |
+| 5e | Combine 5b + 5c (block_length=64, steps=256, fp16) | Stack the two changes that helped | Next — final run |
 
 ### 5a: Greedy sampling (temperature=0)
 
@@ -93,6 +93,28 @@ fp16 has 65,536 possible values per weight. 4-bit NF4 has 16. The confidence ran
 **Canary C (long essay):** The real signal. Both samples generate structured essays with actual section headers ("Early Life and Influences", "Theories of Propaganda", "Technological Conformity", "Contemporary Relevance"). The model is *organizing* the essay into sections before cascading — that structural scaffolding wasn't as consistent in the 4-bit runs. Still cascades at ~300-400 words into "homogenization homogenization", but the coherent portion is qualitatively better — more like a real essay draft and less like generic Wikipedia filler.
 
 **Conclusion:** fp16 is a real improvement, especially in structural coherence. Short-form generation (128 tokens) works cleanly. Long-form still cascades but the coherent portion is better organized. The improvement should stack well with block_length=64 (5b's finding) in the combine run (5e). Keep this change for 5e.
+
+**Why fp16 is also faster than 4-bit (counterintuitive):** 102.5 tok/sec (fp16) vs 42.9 tok/sec (4-bit) on A100. 4-bit saves *memory*, not compute. bitsandbytes stores weights in 4-bit but dequantizes them back to fp16 on the fly for every matrix multiplication, every layer, every forward pass. The actual math is the same — fp16 GEMM either way — but 4-bit adds a dequantization tax. On A100, this tax is pure waste: the GPU has 40GB VRAM (fp16 model fits at 16GB) and 1.5 TB/s memory bandwidth (reads 16GB of weights in ~11ms). A100's tensor cores are optimized for native fp16 — no dequantization needed. LLaDA makes this worse than usual because there's no KV cache, so every forward pass reads all 32 layers of weights. Hundreds of forward passes per generation, each paying the dequantization overhead. 4-bit is a trade: speed for memory. On T4/L4 where fp16 doesn't fit, it's the price of admission. On A100, it's overhead you don't need.
+
+### 5d: EOS/EOT suppression (SUPPRESS_EOS=True)
+
+**Config change:** Added `SUPPRESS_EOS = True`. After computing confidence, set confidence to `-inf` for any position predicting EOS (126081) or EOT (126348) tokens. Back to 4-bit quantization (clean test). All other config baseline (128 steps, block_length=128, temp=0.8).
+
+**Hypothesis:** Paper Appendix B.4 warns that extensive EOS token padding in SFT data causes EOS/EOT to get artificially high confidence during unmasking. Once committed, they signal "stop generating" and poison context for surrounding positions.
+
+**Result by canary:**
+
+**Canary A:** Sample 1 gets ~200 coherent words about class and immigration, then cascades into a complex cycling loop ("America is opportunity" / "successful successful" / "believe that" repeating in long cycles). Sample 2 is a full-sentence loop: "As a kid, I was always encouraged to work hard, but I also felt the weight of my family's expectations on me" repeated 30+ times verbatim.
+
+**Canary B:** Total catastrophe. Worst across all runs. "Eileenileenileen" cascades, Chinese characters (鼬), @-symbol chaos, then character-level degeneration.
+
+**Canary C:** Sample 1 gets ~200 words then a new failure mode: "ulululul" (subword cascade), followed by sentence-level loops ("This means that society is led by by technology" repeated endlessly). Sample 2 gets ~300 words with structured sections, then "conform conform conform."
+
+**New failure mode — sentence-level repetition:** The rep_penalty targets individual token counts, but 5d's cascades operate at the sentence level. "As a kid, I was always encouraged to work hard..." repeats as a whole sentence — each individual word only appears a few times per copy, so the penalty barely touches it.
+
+**Why it made things worse:** EOS tokens were acting as natural fill — positions committed as EOS are "done" and don't participate in the confidence race for subsequent steps. By suppressing EOS, we forced every position to be a content token, increasing the number of positions competing simultaneously. More competition = more surface area for the cascade.
+
+**Conclusion:** Drop 5d from the combine run. EOS suppression is counterproductive for LLaDA generation.
 
 ### Code comparison details
 
