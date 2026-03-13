@@ -213,6 +213,26 @@ Fine-tuning: learns real voice signal (the ghost line, the identity-crisis loop'
 
 The experiment's real contribution is diagnostic: understanding *why* masked diffusion models degenerate, what partially mitigates it (smaller blocks, more steps, fp16 precision), and why fine-tuning for style is fundamentally at odds with confidence-based unmasking.
 
+### Why fine-tuning makes LLaDA worse
+
+Two problems stacking, one fixable, one not:
+
+**1. Overfitting (dataset size).** 158 examples is small. Val loss spikes after epoch 1 in every run — the adapter memorizes specific phrases rather than learning generalizable style patterns. The verbatim loops ("I'm a Chinese boy from poor family but I'm rich, and I'm not poor" ×20) are memorized phrasing, not generated text. More data would reduce this, giving the model a broader distribution of voice patterns instead of a handful of exact phrases to latch onto.
+
+**2. Confidence peaking (architectural).** The entire *point* of voice fine-tuning is to make the model more opinionated — prefer certain words, rhythms, structures. In autoregressive models, peaked confidence is pure upside: a more decisive model at position N produces better text, and position N+1 gets fresh logits. Peaked confidence doesn't propagate. In LLaDA, more opinionated = more positions simultaneously confident about the same tokens = cascade. Every masked position sees the same bidirectional context. When the adapter says "prefer words like 'stuck,' 'ghost,' 'limbo,'" that preference manifests at ALL positions at once. They don't know they should each pick *different* expressive words — they all reach the same confident conclusion.
+
+**More data helps problem 1 but worsens problem 2.** Better generalization means a stronger, broader style signal — a *more* peaked distribution across more vocabulary space. The cascade would be less repetitive (fewer exact-phrase loops) but the underlying mechanism — confident predictions amplifying across positions — would still operate. Voice fine-tuning and confidence-based unmasking are fundamentally at odds.
+
+### On the ghost line
+
+The fine-tuned Canary A produced: **"I'm like a ghost stuck, stuck in the limbo."** This was initially read as proof of voice learning. On closer examination:
+
+**The tonal shift is real.** Base model Canary A on the same RTX produces "The class divide was both of my reality" — competent, generic, essay-about-class energy. The fine-tuned version reaches for compressed, imagistic, emotionally direct language. That shift maps to qualities in Lily's writing: compression, concrete images over abstractions, bleakness, rhythmic awareness (the repeated "stuck" with the comma creating a stumble). The base model doesn't produce lines like that. Something in the training data pushed the distribution toward that register.
+
+**But it's N=1.** One line in one sample. The rest of that same sample is garbled ("I'm't sure how to make even the most of it"). Sample 2 is a catastrophe. Cherry-picking the best fragment from a stochastic process and attributing meaning is what humans always do with generative models. A model with peaked confidence toward emotional/personal language will occasionally land on a good combination by chance.
+
+**The honest version:** The *tonal shift* from base to fine-tuned is real and directional. The fine-tuned model reaches for more personal, compressed language. Whether "ghost stuck in the limbo" specifically is voice learning or a lucky draw from a shifted distribution can't be proven from one line. The shift itself is the evidence. The ghost line is the prettiest artifact of that shift, not the proof.
+
 ### Code comparison details
 
 | Element | Official `generate()` | Our `generate_llada` | Match? |
