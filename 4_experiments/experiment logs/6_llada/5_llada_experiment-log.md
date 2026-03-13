@@ -19,7 +19,7 @@ Compared our `generate_llada` against the official LLaDA repo's `generate()` fun
 |-----|--------|-----|--------|
 | 5a | `temperature=0` (greedy) | Paper's default. Tests whether stochastic sampling causes the cascade | **WORSE.** Greedy removes noise that was breaking symmetry. Cascades more severe than 0.8. |
 | 5b | `block_length=64`, `steps=256` | Their ablation found 64 > 128, and more steps = dramatically better quality | **PARTIAL.** Short outputs improved (some fully coherent). Long outputs get more runway but still cascade. |
-| 5c | fp16 (no quantization) on A100 | Tests whether 4-bit distorts confidence rankings across positions | Running |
+| 5c | fp16 (no quantization) on A100 | Tests whether 4-bit distorts confidence rankings across positions | **PARTIAL.** Structural coherence improved (essay sections, formatting). Cascade still hits at ~300-400 words. Short-form (128 tokens) clean. |
 | — | Base model instead of Instruct | Tests whether RLHF peaked distributions trigger the cascade | **SKIP** — Instruct needed for instruction-following canary prompts |
 | 5d | `confidence_eos_eot_inf=True` | Paper Appendix B.4 warns about EOS flooding in low-confidence remasking | Next |
 | 5e | Combine all fixes that helped | Stack the winning changes from 5a-5d | Final run |
@@ -60,9 +60,39 @@ Compared our `generate_llada` against the official LLaDA repo's `generate()` fun
 
 **Config change:** `USE_QUANTIZATION = False`. Model loaded in fp16 (~16GB) instead of 4-bit NF4 (~5GB). Requires A100. All other config back to baseline (block_length=128, steps=128, temp=0.8).
 
-**Hypothesis:** LLaDA needs accurate *relative confidence rankings* across hundreds of masked positions simultaneously. 4-bit NF4 quantization introduces noise into logits — small precision errors could distort which token wins the confidence race at each step. Autoregressive models are more robust to this because they only need the argmax right one token at a time. LLaDA needs precise confidence comparisons across all positions at once.
+**Hypothesis:** LLaDA needs accurate *relative confidence rankings* across hundreds of masked positions simultaneously, and 4-bit quantization doesn't have the resolution to provide them.
 
-*(results pending)*
+**Why quantization hurts LLaDA more than autoregressive models:**
+
+An autoregressive model (Llama) is a typist — at each position, the question is "what word goes here?" If 4-bit noise slightly distorts the scores, the ranking at that one position is usually preserved ("the" still beats "cat"). And the next position gets fresh logits based on whatever was actually committed. Errors don't compound across positions.
+
+LLaDA is a teacher grading 128 exams simultaneously, ranking them to decide which to post first. The question isn't "what's the answer at position 6?" — it's "should I commit position 6's answer or position 73's answer *first*?" The entire unmasking mechanism depends on comparing confidence scores *across* positions.
+
+The confidence differences between positions can be tiny — 0.15 vs 0.17. 4-bit quantization adds noise to every weight in the model. That noise propagates through 32 layers of matrix multiplications. By the time you get logits, the cumulative error can flip which position looks most confident. Position 42 (true confidence 0.15) gets inflated to 0.18. Position 73 (true confidence 0.17) gets deflated to 0.14. Wrong token gets committed first.
+
+Then the cascade: once a wrong token is committed, every remaining masked position sees it simultaneously (bidirectional attention) and adjusts. The next step's confidence rankings are distorted by both quantization noise AND bad context. It compounds.
+
+fp16 has 65,536 possible values per weight. 4-bit NF4 has 16. The confidence ranking needs resolution that 16 values can't provide when the differences between positions are small — which they always are in early unmasking steps, when almost everything is still masked and the model is least sure.
+
+**N_SAMPLES:** Trimmed to 2 (from 5) for this diagnostic run to save time. Full baselines estimated at ~12 min instead of ~30 min.
+
+**VRAM:** 16.03 GB (fp16, no quantization). 24GB headroom on A100.
+
+**Gotcha: CPU offloading on re-run.** First attempt showed 31.62 GB VRAM and the warning `Some parameters are on the meta device because they were offloaded to the cpu.` The old 4-bit model (~5GB) was still in GPU memory when Cell 4 re-ran to load the fp16 model (~16GB). Both models coexisted briefly, pushing total VRAM past what accelerate expected, so it offloaded some fp16 layers to CPU. Result: 10x slower (6.7 tok/sec vs 69.4) and worse output quality (immediate degeneration). Fix: **restart the Colab runtime** before loading a different-sized model. After restart, VRAM showed 16.03 GB with no offloading warning. General rule: whenever changing quantization config, restart runtime first — `del model; torch.cuda.empty_cache()` is not reliable enough for large models with `device_map="auto"`.
+
+**Smoke test (128 tokens):** Clean — no cascade, coherent throughout, 102.5 tok/sec. 3x faster than L4 with 4-bit.
+
+**Baseline generation time:** ~8 min for 2 samples x 3 canaries.
+
+**Result by canary:**
+
+**Canary A (short, known topic):** Sample 1 is coherent through the body — a complete Substack Note + Tweet format. Only degenerates at the trailing hashtags ("# # # #"). Sample 2 starts well but cascades midway ("America America America"). Similar to run 4 (4-bit + rep penalty). Modest improvement.
+
+**Canary B (short, novel topic):** Both samples cascade into "Area Area Area Area" within the first paragraph. This is the hardest canary (name-heavy, triggers repetition). No improvement over 4-bit.
+
+**Canary C (long essay):** The real signal. Both samples generate structured essays with actual section headers ("Early Life and Influences", "Theories of Propaganda", "Technological Conformity", "Contemporary Relevance"). The model is *organizing* the essay into sections before cascading — that structural scaffolding wasn't as consistent in the 4-bit runs. Still cascades at ~300-400 words into "homogenization homogenization", but the coherent portion is qualitatively better — more like a real essay draft and less like generic Wikipedia filler.
+
+**Conclusion:** fp16 is a real improvement, especially in structural coherence. Short-form generation (128 tokens) works cleanly. Long-form still cascades but the coherent portion is better organized. The improvement should stack well with block_length=64 (5b's finding) in the combine run (5e). Keep this change for 5e.
 
 ### Code comparison details
 
