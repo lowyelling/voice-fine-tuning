@@ -2,10 +2,19 @@
 
 **Model:** LLaDA 8B Instruct (4-bit quantized unless noted)
 **Phase:** Base model diagnostics — isolating the degeneration cause
-**GPU:** A100 (40GB)
+**GPU:** A100 (40GB) for 5a-5e baselines. RTX PRO 6000 Blackwell (96GB) for 5e fine-tuning.
 **Baseline config:** FULL — 128 steps, 1024 gen tokens, block_length=128, temp=0.8, N=5, rep_penalty=0.8
 
-No training in this run. Testing base model only across multiple inference configs.
+No training in 5a-5d. Testing base model only across multiple inference configs. 5e combines the best inference settings, then fine-tunes on RTX PRO 6000.
+
+### GPU progression across the LLaDA experiment
+
+| GPU | VRAM | Used for |
+|-----|------|----------|
+| T4 | 16 GB | Runs 1-2: first training attempts. OOM at MAX_SEQ_LEN=2048. |
+| L4 | 24 GB | Runs 2-3: inference baselines. Also OOM at 2048 during training. |
+| A100 | 40 GB | Runs 3-5e: training at 2048 + fp16 inference. OOM on fp16 training. |
+| RTX PRO 6000 Blackwell | 96 GB | Run 5e fine-tuning: fp16 training with 80GB headroom. |
 
 ### Why this run exists
 
@@ -22,7 +31,7 @@ Compared our `generate_llada` against the official LLaDA repo's `generate()` fun
 | 5c | fp16 (no quantization) on A100 | Tests whether 4-bit distorts confidence rankings across positions | **PARTIAL.** Structural coherence improved (essay sections, formatting). Cascade still hits at ~300-400 words. Short-form (128 tokens) clean. |
 | — | Base model instead of Instruct | Tests whether RLHF peaked distributions trigger the cascade | **SKIP** — Instruct needed for instruction-following canary prompts |
 | 5d | `SUPPRESS_EOS=True` (EOS/EOT confidence → -inf) | Paper Appendix B.4 warns about EOS flooding in low-confidence remasking | **WORSE.** Removed natural stopping points, increased cascade surface area. New failure mode: sentence-level loops. |
-| 5e | Combine 5b + 5c (block_length=64, steps=256, fp16) | Stack the two changes that helped | Next — final run |
+| 5e | Combine 5b + 5c (block_length=64, steps=256, fp16) | Stack the two changes that helped | **BEST long-form.** Canary C: structured essays, cascade recovery across blocks. Short-form unchanged. |
 
 ### 5a: Greedy sampling (temperature=0)
 
@@ -115,6 +124,94 @@ fp16 has 65,536 possible values per weight. 4-bit NF4 has 16. The confidence ran
 **Why it made things worse:** EOS tokens were acting as natural fill — positions committed as EOS are "done" and don't participate in the confidence race for subsequent steps. By suppressing EOS, we forced every position to be a content token, increasing the number of positions competing simultaneously. More competition = more surface area for the cascade.
 
 **Conclusion:** Drop 5d from the combine run. EOS suppression is counterproductive for LLaDA generation.
+
+### 5e: Combined — block_length=64, steps=256, fp16
+
+**Config change:** `GEN_BLOCK_LENGTH` 128 → 64, `GEN_STEPS` 128 → 256, `USE_QUANTIZATION = False` (fp16). Combines 5b + 5c. EOS suppression off (5d dropped). Temperature 0.8, rep_penalty 0.8, N_SAMPLES=2.
+
+**Hypothesis:** 5b improved short-form and extended coherent runway on long-form. 5c improved structural coherence and confidence ranking accuracy. Stacking should compound: more steps per block (5b) with more accurate confidence rankings (5c).
+
+**Generation time:** ~3 min for 2 samples × 3 canaries. (The smoke test extrapolation of 26 min was wrong — it scaled linearly by steps without accounting for block structure.)
+
+**Result by canary:**
+
+**Canary A (short, known topic):** Sample 1 is the best A across all runs — a coherent Substack Note about first-gen Chinese immigrant experience, complete with hashtags, only minor doubled words ("generation-generation"). Sample 2 starts well for ~2 paragraphs then cascades into "But the But is that is is that is that is that that that is." 1/2 coherent — similar to 5b, not clearly better.
+
+**Canary B (short, novel topic):** Still the hardest canary. Sample 1 gets a coherent paragraph about both athletes before "resilience resilience resilience" cascade then "# # # # #" hashtag flood. Sample 2 is catastrophic — "half Asian half Asian half Asian" → "Eileenileenileen" wall, same failure mode as every prior run. No meaningful improvement over 5b or 5c individually. Name-heavy content overwhelms both fixes.
+
+**Canary C (long essay):** Best long-form outputs across all runs.
+
+Sample 1: Structured essay with clear sections (Views on Propaganda, Views on Technological Conformity, Influence on Modern Understanding, Conclusion). The propaganda section is coherent for ~300 words. Cascades at "conformity conformity conformity" in the technological conformity section. But then **the conclusion section recovers** — mostly coherent, summarizing Ellul's relevance. This cross-block recovery is new. In all prior runs, cascade consumed everything after onset.
+
+Sample 2: ~500 words of structured essay with sections (Early Contributions, Technologicalagoraganda, Propaganda Culture, Theagora, Impact and Legacy, Conclusion). Hallucinated concepts ("Theagora," "Technologicalagoraganda") but structured as real academic terms with definitions. The cascade here is qualitatively different — **semantic repetition** ("widely adopted by scholars in media studies, cultural studies, and social media research" repeated across multiple sections) rather than raw token floods ("conformity conformity conformity"). The model is looping at the paragraph level, not the token level.
+
+**Why the improvements stack for long-form but not short-form:**
+
+Short-form (A, B): Generation fits in 1-2 blocks. The cascade mechanism operates within a single block — smaller blocks and better precision help modestly but can't prevent the positive feedback loop once it starts.
+
+Long-form (C): Generation spans 16 blocks (1024 tokens / 64 per block). Each block starts with committed tokens from all previous blocks as context, but its own internal unmasking is fresh. A cascade in block 6 doesn't necessarily propagate to block 9 because block 9 begins its own confidence-based unmasking with new forward passes. fp16 gives each block better confidence rankings to work with, and more steps per block (4 tokens unmasked per step instead of 8) give the model more iterative refinement within each block.
+
+The combination creates a regime where: (1) individual blocks are more likely to be coherent (both fixes contribute), and (2) even when one block cascades, later blocks can recover from the committed context of earlier coherent blocks. This is the block structure working as designed — semi-autoregressive scaffolding limiting cascade propagation.
+
+**Conclusion (A100 baselines):** 5e is the best inference config found. The improvements compound for long-form generation but don't solve the fundamental cascade mechanism.
+
+### 5e continued: RTX PRO 6000 Blackwell (96GB) — baselines + fine-tuning
+
+A100 OOM'd on fp16 training (32GB VRAM before training, no headroom for activations/gradients). Upgraded to RTX PRO 6000 Blackwell (96GB) — the full GPU ladder from T4 → L4 → A100 → RTX.
+
+**Inference speed:** 97.8 tok/sec (smoke test). Comparable to A100's 102.5. Baselines took ~2-3 min for 2 samples × 3 canaries.
+
+#### RTX baselines (same config, same model — confirming A100 results)
+
+**Canary A:** Sample 1 gets ~400 coherent words — structured Substack Note with three "Note:" sections. Paragraph-level repetition at the very end (third section repeats the second), not token cascade. Sample 2 is **fully clean** — a complete short Note with hashtags. Best A results across all runs.
+
+**Canary B:** The headline result. **Zero catastrophic cascades.** Sample 1 produces a coherent Substack Note AND Tweet with @ handles, emojis, and hashtags. Minor artifacts ("half-asAsian") but structurally complete. Sample 2 also coherent — complete Note with handles (@ileenileenu, @alyssalieliu — hallucinated but structured). Every prior run had at least one "Eileenileenileen" catastrophe on Canary B. Same model, same config, different Gumbel noise draws — the cascade isn't inevitable at this config, just probabilistic.
+
+**Canary C:** Same pattern as A100. Sample 1 gets ~500 coherent words about Ellul ("The Technic Society," technological conformity, application to fake news), then paragraph-level repetition ("Ellul's work have been applied by contemporary scholars..." verbatim ×11). Sample 2 gets ~400 words, then citation-level cascade ("Propaganda" (1965) ×30+). Semantic repetition, not raw token floods.
+
+**Baseline verdict:** RTX confirms A100 quality (expected — same weights, same precision, same config). The Canary B clean draws show that 5e's config puts the model in a regime where cascades are probabilistic rather than deterministic for short-form content.
+
+#### RTX fine-tuning (fp16, no quantization)
+
+**Training config:** Same as prior runs (LR=5e-5, LoRA rank=16, alpha=32, 3 epochs, grad_accum=4, MAX_SEQ_LEN=2048) but in fp16 instead of 4-bit. VRAM before training: 32.19 GB with ~64GB headroom.
+
+**Training time:** ~1.5 min for 3 epochs × 158 examples.
+
+**Loss curve:**
+
+| Epoch | Train loss | Val loss | Note |
+|-------|-----------|---------|------|
+| 1 | 3.30 | **2.70** | Best checkpoint saved |
+| 2 | 3.10 | 4.01 | Overfitting — val loss ↑48% |
+| 3 | 3.25 | 3.61 | Still worse than epoch 1 |
+
+Val loss spiked after epoch 1 and never recovered. Best checkpoint (epoch 1) saved automatically. High batch-level loss variance (0.0 to 8.5) is expected — LLaDA's `1/p_mask` weighting amplifies loss when masking rate `t` is near 0 (few tokens masked, each gets huge weight).
+
+**Overfitting pattern:** Same as prior LLaDA training runs. 158 examples × 1 epoch may be the sweet spot for this model — the LoRA adapter learns quickly but generalizes poorly past epoch 1. The `1/p_mask` loss amplification means the effective gradient signal per step is already high, so fewer passes through the data are needed.
+
+#### Fine-tuned canary results
+
+**Canary A:** Sample 1 has the ghost line — short coherent opening about being a first-gen Chinese immigrant, then fragments and hashtags (~150 words). **"I'm like a ghost stuck, stuck in the limbo."** This isn't in the training essays, isn't generic LLM filler, and is structurally interesting — the repeated "stuck" with the comma creating a rhythmic stumble. Compressed, imagistic, a little bleak. The fine-tuning *did* learn something about voice. Sample 2 is the worst A across all runs — "I love America because I am breathe to breathe my life" sentence-level loops, Chinese characters leaking (单项金额), "assistant" token bleeding through, then a long identity-crisis loop ("I'm a Chinese boy from poor family but I'm rich, and I'm not poor").
+
+**Canary B:** Sample 1 is pure "Eileen" catastrophe from the first token — then morphs into "Ellen Ella" (the name cascade evolved into new names). Sample 2 is surprisingly decent — a structured Substack Note AND Tweet about both athletes, with some repetition ("Winter Winter Winter", "Stanford Stanford Stanford") but the content and structure hold. High variance between samples.
+
+**Canary C:** More interesting than expected. Sample 1 is a structured essay with sections (Critique of Technology, Critique of Propaganda, Ellul as a Forgotten Prophet, Conclusion, References). ~500 words mostly coherent. The "Forgotten Prophet" section has a numbered list that degenerates (items nest/repeat). References hallucinate titles ("The Myth of the Last Man," "Bocken Books") but maintain citation format. Sample 2 also structured — sections with horizontal rules (Early Life, Concept of Propaganda, Technological Conformity, Influence, Legacy, Conclusion). ~400 coherent words, then "Blade Runner" cascade in the Legacy section, followed by a mostly-coherent conclusion. Both C samples are comparable to the best base model outputs — fine-tuning didn't clearly degrade long-form under the 5e config, unlike run 4.
+
+**N=2 caveat:** Variance between samples is enormous (Canary B sample 1 vs sample 2 are night and day). With only 2 samples per canary, we can't distinguish signal from Gumbel noise luck. The results are suggestive but not conclusive.
+
+#### The cruel trade-off
+
+The fine-tuning learns voice — the ghost line proves it. But the same mechanism that makes output more distinctive (peaked confidence toward specific, expressive tokens) is exactly what triggers the cascade. The adapter shifts the model's confidence distribution toward more opinionated predictions. In an autoregressive model, that's good — confident predictions at one position don't affect other positions. In LLaDA, confident predictions at one position get seen by ALL other positions simultaneously (bidirectional attention), amplifying the confidence peak across the entire sequence.
+
+**The more voice it learns, the faster it degenerates** — at least for short-form. The long-form results (Canary C) are more ambiguous: fine-tuned C outputs are comparable to base model C outputs under the 5e config, suggesting the block structure may contain the damage for longer generation where each block gets a fresh start.
+
+#### Run 5 verdict
+
+Best inference config: block_length=64, steps=256, fp16 (5e). Base model produces structured essays with ~300-500 words of coherent content. Short-form sometimes fully clean (Canary B escaped cascades entirely on RTX baselines).
+
+Fine-tuning: learns real voice signal (the ghost line, the identity-crisis loop's raw emotional content) but destabilizes short-form generation. Long-form is a wash — fine-tuned Canary C is comparable to base Canary C. The cascade remains architectural. N=2 samples makes definitive conclusions impossible, but the pattern across runs 1-5 is consistent: fine-tuning peaks the confidence distribution, which feeds the bidirectional cascade mechanism.
+
+The experiment's real contribution is diagnostic: understanding *why* masked diffusion models degenerate, what partially mitigates it (smaller blocks, more steps, fp16 precision), and why fine-tuning for style is fundamentally at odds with confidence-based unmasking.
 
 ### Code comparison details
 
